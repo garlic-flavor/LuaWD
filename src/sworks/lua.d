@@ -1757,8 +1757,8 @@ q{
     p("        構造体のメンバ変数が TABLE へと格納されます。")
     p("        現在、@property の格納には対応していません。")
     p("        これは、循環参照などに問題がある為です。")
-    p("        この構造体の関数を呼び出すことは出きません。")
-    p("        関数を呼び出したい場合は次項を利用して下さい。")
+    p("        この構造体のメンバ関数を呼び出すことは出きません。")
+    p("        メンバ関数を呼び出したい場合は12.を参照して下さい。")
     p("        例: 富士山のデータ = ", mt_fuji)
     p("    11. std.typecons.Tuple。")
     p("        Tupleをpushした場合、その中身がスタック上に展開されます。")
@@ -1815,7 +1815,7 @@ q{
     p("      そのスタックの頂上(インデックス値 -1)の値を Type型に変換して")
     p("      変数 val へと格納しています。")
     p()
-    p("  LuaState.getAs から取り出すことができる型は、")
+    p("  LuaState.getAs で取り出すことができる型は、")
     p("    1. bool。")
     p("    2. 整数。lua_Integer は ptrdiff_t の精度があります。")
     p("    3. 数値。lua_Number は double の精度があります。")
@@ -1857,11 +1857,18 @@ q{
 
 void _sjis_out(string str)
 {
-    import std.conv : to;
-    import std.c.stdio : printf;
-    import std.windows.charset : toMBSz;
+    version      (Windows)
+    {
+        import std.c.stdio : printf;
+        import std.windows.charset : toMBSz;
 
-    printf(toMBSz(str));
+        printf(toMBSz(str));
+    }
+    else version (linux)
+    {
+        import std.stdio : write;
+        write(str);
+    }
 }
 
 /// 1. extern(C) で lua_State* を引数とする static な関数。
@@ -1908,6 +1915,7 @@ int print(lua_State* ls)
 
 
 // 出力の休止
+bool aborting;
 bool prompt()
 {
     import std.c.stdio : getchar, printf;
@@ -1917,7 +1925,8 @@ bool prompt()
     auto c = getchar;
     for (auto b = c; b != '\n'; b = getchar){}
     writeln;
-    return c != 'Q' && c != 'q';
+    aborting = c == 'Q' || c == 'q';
+    return !aborting;
 }
 
 // Lua へと文字列を返す。
@@ -2071,6 +2080,9 @@ void main()
 
         // 実行
         .doString(script_body);
+
+    if (aborting) return;
+
 
     auto r = lua.callFunc!(double, int)("f", 10, 20);
     _sjis_out("    Luaスクリプト内で宣言された関数の戻り値は常にタプルです。 ");

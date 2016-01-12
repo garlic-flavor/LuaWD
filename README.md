@@ -26,6 +26,12 @@ HOW TO USE
             print("hello, world!")  -- call D's from Lua
         });
 
+PROPERTIES
+----------
+| FUNCTIONALITY |    SUPPORT     |
+|:-------------:|:---------------|
+|Tested OS      | Windows, Linux |
+
 LICENSE
 -------
 [CC0](https://creativecommons.org/publicdomain/zero/1.0/)
