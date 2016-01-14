@@ -3,9 +3,9 @@
 .PHONY : release clean show remake install run edit clean_obj vwrite debug-all ddoc
 ## MACRO
 TARGET = sample
-AUTHORS =
-LICENSE =
-VERSION =
+AUTHORS = KUMA
+LICENSE = CC0
+VERSION = 0.0002(dmd2.069.2)
 
 MAKEFILE = linux.mak
 DC = dmd
@@ -46,13 +46,13 @@ ddoc :
 show :
 	@echo ROOT = src/sworks/lua.d
 	@echo TARGET = $(TARGET)
-	@echo VERSION =
+	@echo VERSION = 0.0002(dmd2.069.2)
 run :
 	$(TARGET) $(FLAG)
 edit :
 	emacs $(TO_COMPILE)
 remake :
-	amm -ofsample linux.mak -debug=lua -L-lDerelictUtil -L-lDerelictLua imp=/usr/local/include src/sworks/lua.d $(FLAG)
+	amm -ofsample linux.mak -debug=lua -L-lDerelictUtil -L-lDerelictLua imp=/usr/local/include src/sworks/lua.d "v=0.0002(dmd2.069.2)" AUTHORS=KUMA LICENSE=CC0 $(FLAG)
 
 debug :
 	ddbg $(TARGET)

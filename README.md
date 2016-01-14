@@ -3,9 +3,11 @@ LuaWD - a Lua Wrapper for D -
 
 WHAT IS THIS?
 -------------
-This is a wrapper library of [Lua](http://www.lua.org/) for [D Programming Language](http://dlang.org/).
+This is a wrapper library of [Lua5.2](http://www.lua.org/) for [D Programming Language](http://dlang.org/).
 
 lua52.dll and sample.exe is for Windows(amd64).
+
+This module depends on [DerelictLua](https://github.com/DerelictOrg/DerelictLua).
 
 FOR ORDINARY USERS
 ------------------
@@ -13,24 +15,47 @@ Use [LuaD](https://github.com/JakobOvrum/LuaD).
 
 HOW TO BUILD
 ------------
-* Please ensure that dmd can find [DerelictLua](https://github.com/DerelictOrg/DerelictLua).
+* Please ensure that [DerelictLua](https://github.com/DerelictOrg/DerelictLua) is ready.
+* Add src/sworks/lua.d to your project.
 
 HOW TO USE
 ----------
 
-    (new LuaState)                  // initialize
+    LuaState().init                 // initialize
         .push!my_stdout             // push my_stdout to Lua's stack.
-        .setGlobal("print")         //
+        .setGlobal("myPrint")       //
         .doString(                  // invoke a script.
         q{
-            print("hello, world!")  -- call D's from Lua
+            myPrint("hello, world!")  -- call D's function from Lua
         });
 
 PROPERTIES
 ----------
-| FUNCTIONALITY |    SUPPORT     |
-|:-------------:|:---------------|
-|Tested OS      | Windows, Linux |
+|      FUNCTIONALITY       |           SUPPORT           |
+|--------------------------|-----------------------------|
+|Tested OS                 | Windows, Linux              |
+|Lua version               | 5.2                         |
+|dmd version               | 2.069.2                     |
+|Low level interfaces      | No, depend on DerelictLua   |
+|Capsuled stack operations | partially                   |
+|Error handling            | partially(*1                |
+
+*1 Any restoration from atpanic function is impossible.
+
+
+### Type conversion.
+| D type             | Lua type                       |
+|--------------------|--------------------------------|
+| bool               | Bool                           |
+| ptrdiff_t          | Number                         |
+| double             | Number                         |
+| ireal              | N/A                            |
+| struct             | Table                          |
+| class              | lightuserdata + Metatable      |
+| array              | Table                          |
+| AA                 | Table                          |
+| std.typecons.Tuple | Sequential values on the stack |
+| function/delegate  | function                       |
 
 LICENSE
 -------
@@ -46,6 +71,7 @@ WANNA BE
 
 HISTORY
 -------
+* 2016-01-15 ver.0.0002(dmd2.069.2) make LuaState struct.
 * 2016-01-12 ver.0.0001(dmd2.069.2) the first commit.
 
 
@@ -54,10 +80,12 @@ HISTORY
 
 これは？
 -------
-これは、[D言語](http://dlang.org/)から[Lua](http://www.lua.org/)を
+これは、[D言語](http://dlang.org/)から[Lua5.2](http://www.lua.org/)を
 使う為のラッパライブラリです。
 
 付属の lua52.dll と sample.exe は 64bit Windows 用です。
+
+[DerelictLua](https://github.com/DerelictOrg/DerelictLua)に依存しています。
 
 初めての方へ
 ------------
@@ -67,12 +95,12 @@ HISTORY
 使い方
 ------
 
-    (new LuaState)                  // 初期化
-        .push!my_stdout             // 関数 my_stdouf への参照をスタックに積む。
-        .setGlobal("print")         // 積んでるものをLuaのグローバルへ。
-        .doString(                  // スクリプトの実行。
+    LuaState().init                  // 初期化
+        .push!my_stdout              // 関数 my_stdouf への参照をスタックに積む。
+        .setGlobal("myPrint")        // 積んでるものをLuaのグローバルへ。
+        .doString(                   // スクリプトの実行。
         q{
-            print("hello, world!")  -- D言語の関数の呼び出し
+            myPrint("hello, world!") -- D言語の関数の呼び出し
         });
 
 ビルド
@@ -80,6 +108,35 @@ HISTORY
 * [DerelictLua](https://github.com/DerelictOrg/DerelictLua)を利用しています。
   import / link できるようにしてください。
 * src/sworks/lua.d をプロジェクトに参加させて下さい。
+
+
+特徴
+----
+|              機能                 |           実装            |
+|-----------------------------------|---------------------------|
+|テスト環境                         | Windows, Linux            |
+|Lua のヴァージョン                 | 5.2                       |
+|dmd のヴァージョン                 | 2.069.2                   |
+|LuaのCインターフェイスへのアクセス | × DerelictLuaを使います。 |
+|Luaのスタック操作の隠蔽            | △                        |
+|エラー処理                         | △(*1                     |
+
+*1 atpanic関数からの復帰は不可能です。
+
+
+### 型変換
+| D の型             | Lua の型                  |
+|--------------------|---------------------------|
+| bool               | Bool                      |
+| ptrdiff_t          | Number                    |
+| double             | Number                    |
+| ireal              | N/A                       |
+| struct             | Table                     |
+| class              | lightuserdata + Metatable |
+| array              | Table                     |
+| AA                 | Table                     |
+| std.typecons.Tuple | スタック上の連続した値    |
+| function/delegate  | function                  |
 
 
 謝辞
@@ -101,4 +158,5 @@ HISTORY
 
 履歴
 ----
+* 2016-01-15 ver.0.0002(dmd2.069.2) LuaState を構造体に。
 * 2016-01-12 ver.0.0001(dmd2.069.2) 初代

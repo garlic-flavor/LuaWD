@@ -1,6 +1,6 @@
 /** interface for Lua
- * Version:    0.0001(dmd2.096.2)
- * Date:       2016-Jan-11 21:19:27.44551
+ * Version:    0.0002(dmd2.069.2)
+ * Date:       2016-Jan-15 00:06:48
  * Authors:    KUMA
  * License:    CC0
  **/
@@ -56,12 +56,16 @@ debug import std.stdio : writeln, write;
 
 //------------------------------------------------------------------------------
 /// Lua へのインターフェイス
-class LuaState
+struct LuaState
 {
     /// ナカミ
     private lua_State* _l;
 
 @trusted:
+
+    ///
+    @nogc pure nothrow
+    this(lua_State* l) { _l = l; }
 
     /** luaL_newstate を呼び出し、パニック関数を登録する。
     登録されるパニック関数は exit() で終了する。
@@ -69,15 +73,21 @@ class LuaState
     Stack:
        [-0, +0]
     **/
-    this()
+    LuaState init()
     {
         DerelictLua.isLoaded || DerelictLua.load();
-        _l = luaL_newstate();
-        lua_atpanic(_l, &_atpanic);
+        if (_l is null)
+        {
+            _l = luaL_newstate();
+            lua_atpanic(_l, &_atpanic);
+        }
+        return this;
     }
-    /// 特に何もしない。
-    @nogc pure nothrow
-    this(lua_State* l) { _l = l; }
+
+    ///
+    LuaState initYield()
+    { return init.push!_yielder.setGlobal("yield"); }
+
 
     /// 終了処理。必ずしも必要ではない。
     @nogc nothrow
@@ -178,6 +188,24 @@ class LuaState
             }
         }
     }
+
+    /// スクリプトを開始/再開する。
+    template resume(R...)
+    {
+        auto resume(Args...)(lua_State* from, Args args)
+        {
+            push(args);
+            auto i = stackTop - args.length;
+            ensuccess(lua_resume(_l, from, Args.length));
+            auto r = getAs!(Tuple!R)(i);
+            pop(R.length);
+            return r;
+        }
+    }
+
+    /// 前回の resume が yield で終わっているか。
+    @property @nogc nothrow
+    bool isRunning() { return lua_status(_l) == LUA_YIELD; }
 
     //--------------------------------------
     // about stack
@@ -904,7 +932,7 @@ class LuaState
         assert(0);
     }
 
-//------------------------------------------------------------------------------
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 private:
 
     // getAs のナカミ
@@ -1077,6 +1105,10 @@ private:
         return r;
     }
 
+    //
+    private extern(C) static @nogc
+    int _yielder(lua_State* l) { return lua_yield(l, lua_gettop(l)); }
+
     //--------------------------------------------------------------------------
     // about a function called by lua
 
@@ -1095,57 +1127,6 @@ private:
 // The end of LuaState
 //##############################################################################
 //##############################################################################
-
-//------------------------------------------------------------------------------
-/** コルーチンへのインターフェイス
-
-このクラスから呼ばれるスクリプト内では、グローバルスコープに、
-yield という関数が定義されている。
-**/
-class LuaThread : LuaState
-{
-    private int _result;
-
-    @trusted:
-
-    private extern(C) static @nogc
-    int _yielder(lua_State* l) { return lua_yield(l, lua_gettop(l)); }
-
-    //
-    this()
-    {
-        super();
-        push!_yielder.setGlobal("yield");
-        _result = LUA_OK;
-    }
-
-    //
-    @nogc nothrow
-    this(lua_State* ls)
-    {
-        super(ls);
-        push!_yielder.setGlobal("yield");
-        _result = LUA_OK;
-    }
-
-    /// 前回の resume が yield で終わっているか。
-    @property @nogc pure nothrow
-    bool isRunning() const { return _result == LUA_YIELD; }
-
-    /// スクリプトを開始/再開する。
-    template resume(R...)
-    {
-        auto resume(Args...)(lua_State* from, Args args)
-        {
-            push(args);
-            auto i = stackTop - args.length;
-            _result = ensuccess(lua_resume(_l, from, Args.length));
-            auto r = getAs!(Tuple!R)(i);
-            pop(R.length);
-            return r;
-        }
-    }
-}
 
 //------------------------------------------------------------------------------
 /// Lua のエラー情報を持つ例外
@@ -1323,7 +1304,7 @@ template SetterType(T, string N)
 extern(C) private
 int funcWrapper(alias T)(lua_State* ls) if (__traits(isStaticFunction, T))
 {
-    scope auto l = new LuaState(ls);
+    auto l = LuaState(ls);
     return callWrapper!T(l);
 }
 
@@ -1451,7 +1432,7 @@ auto metaRegs(T)() if (is(T == class) || is(T == struct))
     static extern(C) nothrow
     int _index(lua_State* _l)
     {
-        scope auto l = new LuaState(_l);
+        auto l = LuaState(_l);
         try
         {
             auto t = l.getUserDataAs!U(lua_upvalueindex(1));
@@ -1476,7 +1457,7 @@ auto metaRegs(T)() if (is(T == class) || is(T == struct))
     static extern(C) nothrow
     int _newindex(lua_State* _l)
     {
-        scope auto l = new LuaState(_l);
+        auto l = LuaState(_l);
         try
         {
             auto t = l.getUserDataAs!U(lua_upvalueindex(1));
@@ -1513,7 +1494,7 @@ private struct DelContainer(T) {T payload;}
 extern(C) private nothrow
 int delWrapper(T)(lua_State* ls)
 {
-    scope auto l = new LuaState(ls);
+    auto l = LuaState(ls);
     try
     {
         auto del = l.getUserDataAs!(DelContainer!T*)(lua_upvalueindex(1));
@@ -1534,7 +1515,7 @@ int memWrapper(T, string F)(lua_State* ls)
     static if (is(T U == class) || is(T : U*, U) && is(U == struct)){}
     else static assert(0, "no implementation for " ~ T.stringof);
 
-    scope auto l = new LuaState(ls);
+    auto l = LuaState(ls);
     try
     {
         auto t = l.getUserDataAs!U(lua_upvalueindex(1));
@@ -1627,7 +1608,7 @@ template numTuples(T)
     else enum int numTuples = 1;
 }
 
-/// getFunc() の戻り値
+/// LuaState.getFunc() の戻り値
 private
 struct FuncOfLua(const(char)* name, R...)
 {
@@ -1697,7 +1678,7 @@ int _atpanic(lua_State* l)
 //##################XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX####################
 debug(lua):
 
-enum _VERSION_ = "0.0001(dmd2.096.2)";
+enum _VERSION_ = "0.0002(dmd2.069.2)";
 enum _AUTHORS_ = "KUMA";
 enum _LICENSE_ = "CC0";
 
@@ -1705,6 +1686,8 @@ enum HEADER = "LuaWD ver." ~ _VERSION_ ~ " written by " ~ _AUTHORS_ ~ ", " ~
     "licensed under " ~ _LICENSE_ ~ ".";
 
 //--------------------------------------
+version (InJapanese)
+{
 enum script_body =
 q{
     p(HEADER);
@@ -1718,7 +1701,7 @@ q{
     p("  [Lua]: print(\"hello, world!\")")
     p("  というように表します。")
 
-    if not prompt() then return end
+    if not prompt() then return -1 end
 
     p("[1. D → Lua の変換。]")
     p("  D言語の値を Lua のスタックに積むためには、")
@@ -1751,7 +1734,7 @@ q{
     p("       例: my_cos(π/8) = ", my_cos(my_pi/8))
     p("    9. デリゲート")
 
-    if not prompt() then return end
+    if not prompt() then return -1 end
 
     p("    10. 構造体。Lua 内では TABLE で表現されます。")
     p("        構造体のメンバ変数が TABLE へと格納されます。")
@@ -1765,7 +1748,7 @@ q{
     p("        D言語の関数の戻り値として使用した場合には、複数の値を Lua へと")
     p("        返すことが出来ます。")
     p("    12. クラスインスタンス。もしくは構造体へのポインタ。")
-    p("        Lua 内では TABLE + METATABLE として表現されます。")
+    p("        Lua 内では LIGHTUSERDATA + METATABLE として表現されます。")
     obj = QueryInterface("MyClass")
     p("        A. メソッドへのアクセス。")
     q("           例: ") obj.print("これはクラスメソッドです。")
@@ -1789,7 +1772,7 @@ q{
         p("             enum への代入はエラーとなります。")
     end
 
-    if not prompt() then return end
+    if not prompt() then return -1 end
 
     p("  ## 注意点")
     p("    * 関数ポインタや、デリゲートを用いてpushをした場合、デフォルト引数")
@@ -1805,7 +1788,7 @@ q{
     p("      実行されません。")
     p("\n")
 
-    if not prompt() then return end
+    if not prompt() then return -1 end
 
     p("[2. Lua → D言語の変換。]")
     p("  D言語から Lua スタック内の値を取り出すには、")
@@ -1834,7 +1817,7 @@ q{
     p("    10. クラスインスタンス。もしくは構造体へのポインタ")
     p("        Dからpushされたインスタンスである必要があります。")
 
-    if not prompt() then return end
+    if not prompt() then return -1 end
 
     p("[3. D言語からLua内で宣言された関数を呼び出す。]")
     p("  例1: [D]: auto ret = ls.callFunc!(double, int)(\"f\", 10, 20);")
@@ -1855,6 +1838,150 @@ q{
     setting = { width = 100, height = 200 }
 };
 
+}
+else
+{
+enum script_body =
+q{
+    p(HEADER);
+    p("This is a wrapper library of Lua for D programming language.")
+    p("")
+    p("[LEGEND]")
+    p("  A code snippet of D is written like this.")
+    p("  [D]: writeln(\"hello, world!\");")
+    p("  and, A script snippet of Lua is written like this.")
+    p("  [Lua]: print(\"hello, world!\")")
+
+    if not prompt() then return -1 end
+
+    p("[1. D to Lua]")
+    p("  To push a value of D on Lua's stack,")
+    p("  you can use LuaState.push.")
+    p()
+    p("  (1) [D]: (new LuaState).push(3.141592).setGlobal(\"PI\");")
+    p("      In this example, 3.141592 a double precision value can be ")
+    p("      referred as \"PI\" from Lua.")
+    p("  (2) [D]: (new LuaState).push!DayOfWeek.setGlobal(\"WEEK\");")
+    p("      LuaState.push can take type and alias.")
+    p()
+    p("  LuaState.push accepts,")
+    p("    1. bool.")
+    p("       ture == ", true == get_true())
+    p("    2. sizediff_t.")
+    p("    3. double.")
+    p("       π = ", my_pi)
+    p("    4. string.")
+    p("       Today is ", today())
+    p("    5. array. In Lua, D's array is expressed as a table.")
+    p("       First ten prime numbers are ", prime(10))
+    p("    6. Assosiative Array. D's AA is expressed as a table.")
+    p("       Famous mountains in Japan = ", hyakumeizan())
+    p("    7. Function pointer or alias of")
+    p("       lua_CFunction(= extern(C) nothrow int function(lua_State*))")
+    p("    8. Function pointer or alias of D's static function.")
+    p("       my_sin(π/4) = ", my_sin(my_pi/4))
+    p("       my_cos(π/8) = ", my_cos(my_pi/8))
+    p("    9. Delegate")
+
+    if not prompt() then return -1 end
+
+    p("    10. struct. D's struct is expressed as a table.")
+    p("        Public member variables will be copied to the table.")
+    p("        now, @property won't be copied.")
+    p("        The reason of this is about cyclic referencing.")
+    p("        Member methods of the structure is not accessible.")
+    p("        If you want, Please see 12.")
+    p("        The data of Mt.Fuji = ", mt_fuji)
+    p("    11. std.typecons.Tuple。")
+    p("        When you push a Tuple to the stack, its values will be expanded")
+    p("        in the stack.")
+    p("    12. class, pointer to the struct")
+    p("        In Lua, that is expressed as a LIGHTUSERDATA + METATABLE.")
+    obj = QueryInterface("MyClass")
+    p("        A. Call a class method.")
+    q("           ") obj.print("this is a class method.")
+    p("        B. Access to a class variable.")
+    p("           ", obj.name)
+    obj.name = "Lua writes this value."
+    p("              ", obj.getName())
+    obj = QueryInterface("MyStruct")
+    p("           @property method could be accessed as variable.")
+    p("           ", obj.name)
+    obj.name = "Lua assigns this value."
+    p("              ", obj.name)
+    p("     13. alias of an enum.")
+    p("         ", MYENUM.ONE)
+    if not pcall(function() MYENUM.ONE = 10 end) then
+        p("             Assignment to an enum will occur an error.")
+    end
+
+    if not prompt() then return -1 end
+
+    p("  ## Notice")
+    p("    * When you push a pointer to the function or delegate, the default")
+    p("      values of its arguemnts are not referred.")
+    p("    * D and its GC couldn't search inside of Lua. Please attention")
+    p("      about the lifetime of memories allocated by D's GC.")
+    p("      When you use LuaState.newUserData, the memories are allocated by")
+    p("      Lua's GC. The scope of the variable inside Lua decides")
+    p("      the lifetime of the memories.")
+    p()
+    p("  ## !!! バグ !!!")
+    p("    * The destructor of struct allocated by LuaState.newUserData is NOT")
+    p("      invoked.")
+    p("\n")
+
+    if not prompt() then return -1 end
+
+    p("[2. Lua to D]")
+    p("  LuaState.getAs retrieves a value from stack, and conversion.")
+    p("  [D]: auto val = ls.getAs!Type(-1);")
+    p("       In above Example, a variable ls that is a instance of LuaState, ")
+    p("       gets the value of top of the stack, convert the value")
+    p("       to Type. Then assign to a variable val.")
+    p()
+    p("  LuaState.getAs can convert")
+    p("    1. bool。")
+    p("    2. int. lua_Integer is ptrdiff_t.")
+    p("    3. float. lua_Number is double.")
+    p("    4. string. Character code is assumed as UTF8.")
+    p("       getAs!(const(char)[]) gets a slice of the string allocated by")
+    p("       Lua. When the entity is removed from the stack, its value will")
+    p("       be an unknown")
+    p("       getAs!string takes idup.")
+    p("       The string is zero-terminated.")
+    p("    5. static array. takes just N values from a table.")
+    p("    6. dynamic array. lua_rawlen decides its length.")
+    p("    7. Associative Array.")
+    p("    8. struct. Public member variables value will be supplied.")
+    p("       Member methods (including @property) are ignored.")
+    p("    9. std.typecons.Tuple. get sequential values from stack.")
+    p("    10. class or a pointer to struct")
+    p("        restore D's instance.")
+
+    if not prompt() then return -1 end
+
+    p("[3. Call the function in Lua from D.]")
+    p("  [D]: auto ret = ls.callFunc!(double, int)(\"f\", 10, 20);")
+    p("       ls is an instance of LuaState. A function")
+    p("       defined in Lua named \"f\" is called by (10, 20) as arguments.")
+    p("       The return value of the function is always std.typecons.Tuple.")
+    p("       In the above Example, the return value is assumed as")
+    p("       Tuple!(double, int).")
+    p("  [D]: auto f = ls.getFunc(\"f\", double, int);")
+    p("       With LuaSate.getFunc, You can get a cached reference to ")
+    p("       a function.")
+    p()
+    function f (x, y)
+        p("    A function defined in Lua is called by D.")
+       return (x^2 * math.sin(y))/(1-x), 999
+    end
+
+    setting = { width = 100, height = 200 }
+};
+}
+
+
 void _sjis_out(string str)
 {
     version      (Windows)
@@ -1864,13 +1991,12 @@ void _sjis_out(string str)
 
         printf(toMBSz(str));
     }
-    else version (linux)
+    else
     {
         import std.stdio : write;
         write(str);
     }
 }
-
 /// 1. extern(C) で lua_State* を引数とする static な関数。
 extern(C) nothrow
 int println(lua_State* ls)
@@ -1915,18 +2041,19 @@ int print(lua_State* ls)
 
 
 // 出力の休止
-bool aborting;
 bool prompt()
 {
     import std.c.stdio : getchar, printf;
     writeln;
-    _sjis_out("-- 続行するには ENTER を、終了するには Q + ENTER を押して"
-        "下さい。 --");
+    version (InJapanese)
+        _sjis_out("-- 続行するには ENTER を、終了するには Q + ENTER を押して"
+                  "下さい。 --");
+    else
+        _sjis_out("-- press ENTER to continue, or press Q + ENTER to quit. --");
     auto c = getchar;
     for (auto b = c; b != '\n'; b = getchar){}
     writeln;
-    aborting = c == 'Q' || c == 'q';
-    return !aborting;
+    return c != 'Q' && c != 'q';
 }
 
 // Lua へと文字列を返す。
@@ -1992,7 +2119,10 @@ OnStack queryInterface(LuaState l, string name)
 
 class MyClass
 {
-    string name = "これは MyClass のメンバ変数です。";
+    version (InJapanese)
+        string name = "これは MyClass のメンバ変数です。";
+    else
+        string name = "This is a member variable of MyClass.";
 
     void print(string msg, string def = "デフォルト引数も可。")
     {
@@ -2012,7 +2142,10 @@ class MyClass
 
 struct MyStruct
 {
-    private string _name = "これは MyStruct のメンバ変数です。";
+    version (InJapanese)
+        private string _name = "これは MyStruct のメンバ変数です。";
+    else
+        private string _name = "This is a member variable of MyStruct.";
 
     @property
     string name() { return _name; }
@@ -2057,8 +2190,8 @@ void main()
         SetDllDirectoryW(thisExePath.dirName.buildPath(binDir).toUTF16z);
     }
 
-    auto lua = new LuaState;
-    scope(exit) if (lua !is null) lua.clear;
+    auto lua = LuaState().init;
+    scope(exit) lua.clear;
     lua .openlibs
         .push!HEADER.setGlobal("HEADER")
 
@@ -2081,20 +2214,32 @@ void main()
         // 実行
         .doString(script_body);
 
-    if (aborting) return;
+    if (lua.getAs!int(-1, 0) < 0) return;
 
 
     auto r = lua.callFunc!(double, int)("f", 10, 20);
-    _sjis_out("    Luaスクリプト内で宣言された関数の戻り値は常にタプルです。 ");
+    version (InJapanese)
+        _sjis_out(
+            "    Luaスクリプト内で宣言された関数の戻り値は常にタプルです。 ");
+    else
+        write("    The return value of the function defined in Lua script, "
+              "is always a Tuple.");
     writeln(r);
 
-    writeln("    conversion of Lua's table to D's tuple, with default value");
+    version (InJapanese)
+        _sjis_out("    LuaのTABLEからDのTupleへのデフォルト値付きの変換。");
+    else
+        writeln("    conversion of Lua's table to D's tuple, with default "
+                "value");
     alias T = LuaTable!(int, "width", int, "height", int, "depth");
     lua.getGlobal("setting");
     auto table = lua.getAs!T(-1, T(-999,-999,-999));
     writeln("    ", table);
 
-    write("    optimized lua function call: ");
+    version (InJapanese)
+        _sjis_out("    キャッシュされたLuaの関数の呼び出し。");
+    else
+        write("    Cached call of a lua function. ");
     auto f = lua.getFunc!("f", double, int)();
     f(200, 300);
 }
