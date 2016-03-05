@@ -1,0 +1,280 @@
+@charset "utf-8";
+
+/*
+ * 全体
+ */
+body
+{
+    background-color: lightyellow;
+}
+
+/*
+ * 一番上のタイトル
+ */
+#main-title
+{
+    color: gray;
+    text-align: center;
+    border-bottom: 12px solid lightgray;
+    margin-bottom: 0px;
+}
+
+
+/*
+ *一番下のん。
+ */
+#main-footer
+{
+    color: darkslategray;
+    text-align: right;
+    margin-bottom: 0px;
+    background-color: lightgray;
+}
+
+/*
+ * 言語選択ボタン入れ
+ */
+#language-selector
+{
+    text-align: right;
+}
+
+
+/*
+ * 左側
+ */
+#left-pain
+{
+    position: fixed;
+    z-index: 999;
+    left: 0px;
+    bottom: 0px;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    background-color: #d0d0a0;
+    overflow: auto;
+}
+
+/* モジュールアイテムの展開ボタン */
+.expand-button
+{
+    display: inline;
+    margin-right: 5px;
+    cursor: pointer;
+    background-color: #e0ffe0;
+    color: black;
+    font-family: monospace;
+}
+
+.expand-button:hover
+{
+    background-color: gray;
+    color: white;
+}
+
+
+/* 左側のそれぞれのアイテム */
+
+/* 今、画面上に見えてるやつ  */
+#left-pain > div.active
+{
+    background-color: white;
+}
+
+
+/* モジュールの各メンバ */
+#left-pain ul
+{
+    margin-top: 0px;
+    padding-left: 1em;
+}
+
+
+/*
+ * メイン
+ */
+#main-pain
+{
+    overflow: auto;
+    position: absolute;
+    padding-left: 1em;
+    padding-top: 1em;
+}
+
+/*
+ * 中身
+ */
+
+.summary-header-sec
+{
+    margin-bottom: 1em;
+}
+
+.summary-header-sec + .summary-header-sec
+{
+    margin-top: -1em;
+}
+
+dt
+{
+    font-weight: bold;
+}
+
+table
+{
+    display: block;
+    width: 100%;
+    overflow: auto;
+    word-break: break;
+    word-break: keep-all;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+table th, table td
+{
+    padding: 6px 13px;
+    border: 1px solid #ddd;
+}
+
+table tr
+{
+    background-color: #ffffea;
+    border-top: 1px solid #ccc;
+}
+
+/* モジュール単位 */
+#modules > dt
+{
+    font-size: x-large;
+    padding-left: 8px;
+    border-left: 16px solid gray;
+    border-bottom: 8px solid gray;
+}
+
+dd + dt
+{
+    margin-top: 1em;
+}
+
+#modules .section-header
+{
+    font-weight: bold;
+}
+
+.section
+{
+    margin-bottom: 1em;
+}
+
+
+
+/* 各ファイルの先頭についてるやつ。 */
+#modules .summary-header-sec
+{
+    display: none;
+}
+
+#main-page > .summary-header-sec
+{
+    margin-bottom: 1em;
+}
+.summary-header-sec:before
+{
+    font-weight: bold;
+}
+
+.version-sec:before
+{
+    content: "Version： ";
+}
+
+.date-sec:before
+{
+    content: "Date： ";
+}
+
+.authors-sec:before
+{
+    content: "Authors： ";
+}
+
+.license-sec:before
+{
+    content: "License： ";
+}
+
+/* 本文中 */
+.acknowledgements-sec:before
+{
+    content: "◆ 謝辞 ◆";
+    font-weight: bold;
+}
+
+.development-environment:before
+{
+    content: "◆ 開発環境 ◆";
+    font-weight: bold;
+}
+
+dl.module-members-sec > dt
+{
+    border-left: 5px solid #305030;
+    padding-left: 5px;
+}
+
+.decl
+{
+    color: #707070;
+    font-weight: bold;
+    font-family: monospace;
+}
+
+.psymbol
+{
+    color: #002050;
+    font-weight: bold;
+}
+
+.param
+{
+    color: #904840;
+    font-weight: bold;
+}
+
+.params_id
+{
+    color: #904840;
+    font-weight: bold;
+}
+
+.dkeyword
+{
+    color: darkblue;
+    font-weight: bold;
+}
+
+.bugs > .section-header
+{
+
+    font-weight: bold;
+    color: red;
+    font-size: 1.2em;
+}
+
+q
+{
+    quotes: "" "";
+    color: green;
+
+}
+
+.d_code
+{
+    background-color: #e0ffff;
+    padding-left: .5em;
+    padding-top: .3em;
+    padding-bottom: .3em;
+    margin-right: 2em;
+    border-left: .3em solid lightblue;
+}

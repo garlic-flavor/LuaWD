@@ -1,52 +1,163 @@
-/** interface for Lua
- * Version:    0.0002(dmd2.069.2)
- * Date:       2016-Jan-15 00:06:48
- * Authors:    KUMA
- * License:    CC0
- **/
-/**
-Description:
-  これは Lua ($(LINK http://www.lua.org/)) へのラッパです。Lua 5.2に準拠していま
-  す。
-  porting として Derelict3 ($(LINK https://github.com/DerelictOrg/DerelictLua))
-  を利用しています。
-  Windows では実行時に lua52.dll を参照します。
+/** LuaWD - a Lua Wrapper for D -
+Version:    0.0003(dmd2.070.2)
+Date:       2016-Mar-05 22:43:01
+Authors:    KUMA
 
-Bugs:
-  dmd2.069.2
-    - userdataに確保された構造体のデストラクタが実行されない。
+Macros:
+  DMD_VERSION = 2.070.2
 
 
-Error Handling:
-  1. Lua のエラーハンドリング戦略である atpanic関数は終了後に abort関数を呼び
-     出します。
-  2. dmd2.067.0-b1 時点で、abort が呼ばれるとプログラムはクラッシュします。
-  3. 1、 2 より LuaState class は atpanic 関数内で exit 関数を呼び出しています。
-  4. 3 より、atpanic から D言語への処理の復帰は不可能です。
-  5. 4 より、lua_pcall 系の関数を使うべき。
-  6. 4 より、D言語から lua_error を呼ぶべきではない。
-  7. Lua ライブラリは D言語の例外を処理できない。スタックトレースの情報もなくな
-     ってしまう。
-  8. 7 より、 6 の例外として、Lua から呼ばれているD言語の処理はデバグ情報を
-     lua_error に渡すべき。
-  9. 8 より、D言語の関数をラップする LuaState の機能は例外を受け取り、lua_error
-     を呼び出します。
-  10. 9 より、LuaState のユーザは D言語の例外を利用してください。
-  11. 7 より、lua_CFunction 型の関数を使う(Lua から呼び出させる)場合、9 の
-      LuaState の機能を利用できない為、その処理を自前で行う必要があります。
+What_is_this:
+This is a wrapper library of $(LINK2 http://www.lua.org/, Lua) for $(LINK2 http://dlang.org/, D Programming Language).
+lua52.dll and sample.exe is for Windows(amd64).
 
-About this document:
-  関数に関するドキュメント中の "Stack:" セクションは、その関数を実行した際の
-  スタックの増減を示します。
-  例えば、
+For_ordinary_users:
+Use $(LINK2 https://github.com/JakobOvrum/LuaD, LuaD).
 
-  Stack:
-      [-2, +3]
+How_to_build:
+Please ensure that dmd can find $(LINK2 https://github.com/DerelictOrg/DerelictLua, DerelictLua).
 
-  とある場合は、スタック上から値が2個取り除かれた後、3個の値が新たに積まれること
-  を意味します。
+How_to_use:
+---
+(new LuaState)                  // initialize
+    .push!my_stdout             // push my_stdout to Lua's stack.
+    .setGlobal("print")         //
+    .doString(                  // invoke a script.
+    q{
+        print("hello, world!")  -- call D from Lua
+    });
+---
+
+Properties:
+$(TABLE
+$(TR $(TH functionarity)             $(SEP)$(TH support))
+$(COL20)$(COL5)$(COL)$(SEP)$(COL20)$(COL5)$(COL)
+$(TR $(TD Tested OS)                 $(SEP)$(TD Windows, Linux))
+$(TR $(TD Lua version)               $(SEP)$(TD 5.2))
+$(TR $(TD dmd version)               $(SEP)$(TD $(DMD_VERSION)))
+$(TR $(TD Low level interfaces)      $(SEP)$(TD No, depend on DerelictLua))
+$(TR $(TD Capsuled stack operations) $(SEP)$(TD partially))
+$(TR $(TD Error handling)            $(SEP)$(TD partially(*1)))
+)
+
+(*1) Any restoration from atpanic function is impossible.
+
+Type_conversion:
+$(TABLE
+$(TR $(TH D type)              $(SEP)$(TH Lua type))
+$(COL20)$(SEP)$(COL20)
+$(TR $(TD bool)                $(SEP)$(TD Bool))
+$(TR $(TD ptrdiff_t)           $(SEP)$(TD Number))
+$(TR $(TD double)              $(SEP)$(TD Number))
+$(TR $(TD ireal)               $(SEP)$(TD N/A))
+$(TR $(TD struct)              $(SEP)$(TD Table))
+$(TR $(TD class)               $(SEP)$(TD lightuserdata + Metatable))
+$(TR $(TD array)               $(SEP)$(TD Table))
+$(TR $(TD AA)                  $(SEP)$(TD Table))
+$(TR $(TD std.typecons.Tuple)  $(SEP)$(TD Sequential values on the stack))
+$(TR $(TD function/delegate)   $(SEP)$(TD function))
+)
+
+Licensed_under:
+$(LINK https://creativecommons.org/publicdomain/zero/1.0/)
+(about lua52.dll, please see $(LINK2 http://www.lua.org/license.html, Lua License))
+
+Wanna_be:
+$(UL
+$(LI XD)
+)
+
+History:
+$(UL
+$(LI 2016-03-05 ver.0.0003(dmd2.070.2) new document.)
+$(LI 2016-01-15 ver.0.0002(dmd2.069.2) make LuaState struct.)
+$(LI 2016-01-12 ver.0.0001(dmd2.069.2) the first commit.)
+)
+
+$(HR)
+
+これは:
+これは、$(LINK2 http://dlang.org/, D言語)から$(LINK2 http://www.lua.org/, Lua)を
+使う為のラッパライブラリです。
+付属の lua52.dll と sample.exe は 64bit Windows 用です。
+
+初めての方へ:
+$(LINK2 https://github.com/JakobOvrum/LuaD, LuaD)を使って下さい。
+
+使い方:
+---
+(new LuaState)                  // 初期化
+    .push!my_stdout             // 関数 my_stdouf への参照をスタックに積む。
+    .setGlobal("print")         // 積んでるものをLuaのグローバルスコープへ。
+    .doString(                  // スクリプトの実行。
+    q{
+        print("hello, world!")  -- D言語の関数の呼び出し
+    });
+---
+
+特徴:
+$(TABLE
+$(TR $(TH 機能)                               $(SEP)$(TH 実装))
+$(COL20)$(COL10)$(COL5)$(SEP)$(COL20)$(COL10)$(COL5)
+$(TR $(TD テスト環境)                         $(SEP)$(TD Windows, Linux))
+$(TR $(TD Lua のヴァージョン)                 $(SEP)$(TD 5.2))
+$(TR $(TD dmd のヴァージョン)                 $(SEP)$(TD $(DMD_VERSION)))
+$(TR $(TD LuaのCインターフェイスへのアクセス) $(SEP)$(TD × DerelictLuaを使います。))
+$(TR $(TD Luaのスタック操作の隠蔽)            $(SEP)$(TD △))
+$(TR $(TD エラー処理)                         $(SEP)$(TD △(*1)))
+)
+(*1) atpanic関数からの復帰は不可能です。
+
+型変換:
+$(TABLE
+$(TR $(TH D の型)              $(SEP)$(TH Lua の型))
+$(COL20)$(SEP)$(COL20)
+$(TR $(TD bool)                $(SEP)$(TD Bool))
+$(TR $(TD ptrdiff_t)           $(SEP)$(TD Number))
+$(TR $(TD double)              $(SEP)$(TD Number))
+$(TR $(TD ireal)               $(SEP)$(TD N/A))
+$(TR $(TD struct)              $(SEP)$(TD Table))
+$(TR $(TD class)               $(SEP)$(TD lightuserdata + Metatable))
+$(TR $(TD array)               $(SEP)$(TD Table))
+$(TR $(TD AA)                  $(SEP)$(TD Table))
+$(TR $(TD std.typecons.Tuple)  $(SEP)$(TD スタック上の連続した値))
+$(TR $(TD function/delegate)   $(SEP)$(TD function))
+)
+
+ビルド:
+$(UL
+$(LI $(LINK2 https://github.com/DerelictOrg/DerelictLua, DerelictLua)を利用して
+  います。 import / link できるようにしてください。)
+$(LI src/sworks/lua.d をプロジェクトに参加させて下さい。)
+)
+
+謝辞:
+$(UL
+$(LI $(LINK2 http://dlang.org/, D Programming Language) 用のライブラリです。)
+$(LI Lua用のバインディングに$(LINK2 https://github.com/DerelictOrg/DerelictLua, DerelictLua)を使っています。)
+)
+
+ライセンス:
+$(LINK2 https://creativecommons.org/publicdomain/zero/1.0/, CC0)
+(lua52.dll に関しては$(LINK2 http://www.lua.org/license.html, Luaライセンス)を参照して下さい。)
+
+今後の方針:
+$(UL
+$(LI (´・ω・`))
+)
+
+履歴:
+$(UL
+$(LI 2016-03-05 ver.0.0003(dmd2.070.2) 新しいドキュメントに。)
+$(LI 2016-01-15 ver.0.0002(dmd2.069.2) LuaState を構造体に。)
+$(LI 2016-01-12 ver.0.0001(dmd2.069.2) 初代)
+)
+
+$(HR)
 **/
 module sworks.lua;
+
+version (README){} else:
 
 public import derelict.lua.lua;
 
@@ -55,7 +166,90 @@ import std.traits : isCallable, ReturnType;
 debug import std.stdio : writeln, write;
 
 //------------------------------------------------------------------------------
-/// Lua へのインターフェイス
+/** A main interface.
+
+This is a wrapper for $(LINK2 http://www.lua.org/, Lua 5.2).
+This module depends on $(LINK2 https://github.com/DerelictOrg/DerelictLua, Derelict3).
+On Windows, this module requires lua52.dll.
+
+Bugs:
+The destructor allocated in userdata is not executed. @dmd2.069.2
+
+About_exception:
+$(OL
+$(OLI Lua's atpanic function calls C's abort function.)
+$(OLI At dmd2.067.0-b1, C's abort function causes an abnormal termination.)
+$(OLI From 1 and 2, LuaState defined atpanic function as to call C's
+  exit function.)
+$(OLI From 3, restoration from atpanic is impossible.)
+$(OLI From 4, you should use lua_pcall.)
+$(OLI From 4, you shouldn't use lua_error in D.)
+$(OLI Lua couldn't catch any exception from D.)
+$(OLI From 7, a D's function called from Lua should hand the debugging
+  information to lua_error function.)
+$(OLI From 8, LuaState will catch the exception and call lua_error with
+  its debugging information.)
+$(OLI From 9, you should throw any exceptions when required.)
+$(OLI From 7, when you use a lua_CFunction type function, you should do the
+  routine that required.)
+)
+
+About_this_documentation:
+A 'Stack:' section, describes about the stack increasing and decreaseing.
+For example,
+---
+Stack:
+[-2, +3]
+---
+The Above indicates that two values will be removed form the stack, then three
+values will be pushed to the stack.
+
+概要:
+Lua へのインターフェイス
+
+詳細:
+これは $(LINK2 http://www.lua.org/, Lua) へのラッパです。Lua 5.2に準拠していま
+す。
+porting として $(LINK https://github.com/DerelictOrg/DerelictLua, DerelictLua)
+を利用しています。
+Windows では実行時に lua52.dll を参照します。
+
+バグ:
+userdataに確保された構造体のデストラクタが実行されない。@dmd2.069.2
+
+例外処理:
+$(OL
+$(OLI Lua のエラーハンドリング戦略である atpanic関数は終了後に abort関数を呼び
+  出します。)
+$(OLI dmd2.067.0-b1 時点で、abort が呼ばれるとプログラムはクラッシュします。)
+$(OLI 1、 2 より LuaState は atpanic 関数内で exit 関数を呼び出しています
+  。)
+$(OLI 3 より、atpanic から D言語への処理の復帰は不可能です。)
+$(OLI 4 より、lua_pcall 系の関数を使うべき。)
+$(OLI 4 より、D言語から lua_error を呼ぶべきではない。)
+$(OLI Lua ライブラリは D言語の例外を処理できない。スタックトレースの情報もなくな
+  ってしまう。)
+$(OLI 7 より、 6 の例外として、Lua から呼ばれているD言語の処理はデバグ情報を
+  lua_error に渡すべき。)
+$(OLI 8 より、D言語の関数をラップする LuaState の機能は例外を受け取り、lua_error
+  を呼び出します。)
+$(OLI 9 より、LuaState のユーザは D言語の例外を利用してください。)
+$(OLI 7 より、lua_CFunction 型の関数を使う(Lua から呼び出させる)場合、9 の
+  LuaState の機能を利用できない為、その処理を自前で行う必要があります。)
+)
+
+このドキュメントに関して:
+関数に関するドキュメント中の "スタック:" セクションは、その関数を実行した際の
+スタックの増減を示します。
+例えば、
+---
+スタック:
+[-2, +3]
+---
+とある場合は、スタック上から値が2個取り除かれた後、3個の値が新たに積まれること
+を意味します。
+
+**/
 struct LuaState
 {
     /// ナカミ
@@ -67,11 +261,22 @@ struct LuaState
     @nogc pure nothrow
     this(lua_State* l) { _l = l; }
 
-    /** luaL_newstate を呼び出し、パニック関数を登録する。
-    登録されるパニック関数は exit() で終了する。
+    /** Call luaL_newstate, then register an atpanic function.
+
+    The Atpanic function ends with C's exit function.
 
     Stack:
-       [-0, +0]
+    [-0, +0]
+
+
+    概要:
+    luaL_newstate を呼び出し、パニック関数を登録する。
+
+    詳細:
+    登録されるパニック関数は exit() で終了する。
+
+    スタック:
+    [-0, +0]
     **/
     LuaState init()
     {
@@ -89,24 +294,45 @@ struct LuaState
     { return init.push!_yielder.setGlobal("yield"); }
 
 
-    /// 終了処理。必ずしも必要ではない。
+    /** A termination processing (is not required).
+
+    概要: 終了処理。必ずしも必要ではない。
+    **/
     @nogc nothrow
     void clear(){ lua_close(_l); }
 
-    ///
+    /** lua_State itself.
+
+    概要: ナカミ
+    **/
     @property @nogc pure nothrow
     auto ptr() inout { return _l; }
 
-    /** Luaの標準ライブラリ読み込み。
+    /** Load standard libraries of Lua.
+
     Stack:
+        [-0, +0]
+
+    概要:
+    Luaの標準ライブラリ読み込み。
+
+    スタック:
         [-0, +0]
     **/
     @nogc nothrow
     LuaState openlibs() { luaL_openlibs(_l); return this; }
 
-    /** 文字列を読み込んで、Luaの関数としてスタックに積む。実行はしない。
+    /** Load a string. then push the string as a function to the stack without
+    execution.
+
     Stack:
-        [-0, +1]
+    [-0, +1]
+
+    概要:
+    文字列を読み込んで、Luaの関数としてスタックに積む。実行はしない。
+
+    スタック:
+    [-0, +1]
     Throws:
         LuaException = 読み込みに失敗した場合に投げられる。
     **/
@@ -117,11 +343,23 @@ struct LuaState
         return this;
     }
 
-    /** ファイルを読み込んで、関数としてスタックに積む。実行はしない。
+    /** Load a file. then push the file as a function to the stack without
+    execution.
+
     Stack:
-        [-0, +1]
-    Throws:
-        LuaException = 読み込みに失敗した場合に投げられる。
+    [-0, +1]
+
+    Exception:
+    LuaException = when failed to loading.
+
+    概要:
+    ファイルを読み込んで、関数としてスタックに積む。実行はしない。
+
+    スタック:
+    [-0, +1]
+
+    例外:
+    LuaException = 読み込みに失敗した場合に投げられる。
     **/
     LuaState loadFile(const(char)* fn, string f = __FILE__, size_t l = __LINE__)
     {
@@ -129,10 +367,21 @@ struct LuaState
         return this;
     }
 
-    /** ファイルを読み込んで実行する。
+    /** Load a file. then execute the file.
+
     Stack:
-        [-0, +0]
+    [-0, +0]
+
     Throws:
+        LuaException
+
+    概要:
+    ファイルを読み込んで実行する。
+
+    スタック:
+        [-0, +0]
+
+    例外:
         LuaException
     **/
     LuaState doFile(const(char)* fn, string f = __FILE__, size_t l = __LINE__)
@@ -141,10 +390,21 @@ struct LuaState
         return this;
     }
 
-    /** 文字列をスクリプトとして実行する。
+    /** Load a string. the execute the string.
+
     Stack:
         [-0, +0]
+
     Throws:
+        LuaException
+
+    概要:
+    文字列をスクリプトとして実行する。
+
+    スタック:
+        [-0, +0]
+
+    例外:
         LuaException
     **/
     LuaState doString(const(char)* buf, string f = __FILE__,
@@ -154,11 +414,21 @@ struct LuaState
         return this;
     }
 
-    /** スタック頂上に積まれた関数を実行する。
+    /** Execute the function of the top of the stack.
+
     Stack:
       [-1, 0]
 
     Throws:
+        LuaException
+
+    概要:
+    スタック頂上に積まれた関数を実行する。
+
+    スタック:
+      [-1, 0]
+
+    例外:
         LuaException
     **/
     template pcall(Returns...)
@@ -189,7 +459,10 @@ struct LuaState
         }
     }
 
-    /// スクリプトを開始/再開する。
+    /**
+    概要:
+    スクリプトを開始/再開する。
+    **/
     template resume(R...)
     {
         auto resume(Args...)(lua_State* from, Args args)
@@ -203,69 +476,134 @@ struct LuaState
         }
     }
 
-    /// 前回の resume が yield で終わっているか。
+    /**
+    概要:
+    前回の resume が yield で終わっているか。
+    **/
     @property @nogc nothrow
     bool isRunning() { return lua_status(_l) == LUA_YIELD; }
 
     //--------------------------------------
     // about stack
-    /** スタックにこれから積める余裕があるかどうか。
+    /** Whether the stack has enough space for sz.
+
     Stack:
-        [-0, +0]
+    [-0, +0]
+
+    概要:
+    スタックにこれから積める余裕があるかどうか。
+
+    スタック:
+    [-0, +0]
     **/
     @nogc nothrow
     bool checkStack(int sz) { return lua_checkstack(_l, sz) != 0; }
 
-    /** スタックのサイズを得る。
+    /** Get the size of the stack.
+
     Stack:
-        [-0, +0]
+    [-0, +0]
+
+    概要:
+    スタックのサイズを得る。
+
+    スタック:
+    [-0, +0]
     **/
     @property @nogc nothrow
     int stackTop() { return lua_gettop(_l); }
 
-    /** スタックのサイズを設定する。
+    /** Set the size of the stack.
+
     Stack:
-        [-?, +?]
+    [-?, +?]
+
+    概要:
+    スタックのサイズを設定する。
+
+    スタック:
+    [-?, +?]
     **/
     @property @nogc nothrow
     LuaState stackTop(int i) { lua_settop(_l, i); return this; }
 
-    // 負数で与えられたスタック上の位置を整数に変換する。
+    /** Get a positive position on the stack from a negative integer value.
+
+    概要:
+    負の正数で与えられたスタック上の位置を正の整数に変換する。
+    **/
     @nogc nothrow
     int abs(int i)
     { return (i < 0 && i != LUA_REGISTRYINDEX) ? i + stackTop + 1 : i; }
 
-    /** スタック上の値をコピーし、スタックに積む
+    /** Copy a value on the stack. then push the value to the stack.
+
     Stack:
-        [-0, +1]
+    [-0, +1]
+
+    概要:
+    スタック上の値をコピーし、スタックに積む
+
+    スタック:
+    [-0, +1]
     **/
     @nogc nothrow
     LuaState pushValue(int i) { lua_pushvalue(_l, i); return this; }
 
-    /** スタックから値を削除
+    /** Remove a value from the stack.
+
     Stack:
-        [-1, +0]
+    [-1, +0]
+
+    概要:
+    スタックから値を削除
+
+    スタック:
+    [-1, +0]
     **/
     @nogc nothrow
     LuaState remove(int i) { lua_remove(_l, i); return this; }
 
-    /** スタック頂上の値を i の位置に挿入。スタックの高さは変わらない。
+    /** Retrieve a value from the top of the stack. then push the value to
+    the position i of the stack.
+
     Stack:
-        [-1, +1]
+    [-1, +1]
+
+    概要:
+    スタック頂上の値を i の位置に挿入。スタックの高さは変わらない。
+
+    スタック:
+    [-1, +1]
     **/
     @nogc nothrow
     LuaState insert(int i) { assert(0 < i); lua_insert(_l, i); return this; }
 
-    /** スタック頂上の値を、i の位置に入れる。スタックの高さは1減る。
+    /** Retrieve a value from the top of the stack. then overwrite the value on
+    the position i of the stack.
+
     Stack:
-        [-1, +0]
+    [-1, +0]
+
+    概要:
+    スタック頂上の値を、i の位置に入れる。スタックの高さは1減る。
+
+    スタック:
+    [-1, +0]
     **/
     @nogc nothrow
     LuaState replace(int i) { lua_replace(_l, i); return this; }
 
-    /** スタックに値を積む。
+    /** Stack up a value to the stack.
+
     Stack:
-        [-0, +1]
+    [-0, +1]
+
+    概要:
+    スタックに値を積む。
+
+    スタック:
+    [-0, +1]
     **/
     LuaState push(Args...)(Args args)
     {
@@ -387,9 +725,16 @@ struct LuaState
         return this;
     }
 
-    /** Lua からそのまま呼び出し可能な関数、あるいは参照可能な値の登録。
+    /** Stack up a function that is callable without wrapper from Lua.
+
     Stack:
-        [-0, +0|1]
+    [-0, +0|1]
+
+    概要:
+    Lua からそのまま呼び出し可能な関数、あるいは参照可能な値の登録。
+
+    スタック:
+    [-0, +0|1]
     **/
     LuaState push(alias T)()
         if (is(typeof(&T): lua_CFunction) || (!is(T) && !isCallable!T))
@@ -399,14 +744,24 @@ struct LuaState
     }
 
 
-    /** Lua から呼び出し可能な関数を登録する。
-    これで登録できる関数は、static で、alias が取れるもの。
-    Params:
-        name = Lua から参照させる関数の名前。
-               null を渡すとLuaのグローバルスコープに登録されずスタック頂上に
-               残る。
+    /** Stack up a function that can be taken its alias.
+
     Stack:
-        [-0, +0|1]
+    [-0, +0|1]
+
+    概要:
+    Lua から呼び出し可能な関数を登録する。
+
+    詳細:
+    これで登録できる関数は、static で、alias が取れるもの。
+
+    Params:
+    name = Lua から参照させる関数の名前。
+           null を渡すとLuaのグローバルスコープに登録されずスタック頂上に
+           残る。
+
+    スタック:
+    [-0, +0|1]
     **/
     @nogc nothrow
     auto push(alias T)()
@@ -414,22 +769,39 @@ struct LuaState
     { return push(&funcWrapper!T); }
 
 
-    /** クラスの及び構造体の static/非static なメンバ関数を Lua から呼び出し
+    /** Stack up a class or a struct to call its member function from Lua.
+
+    The return value is allocated by Lua's GC.
+    D's GC.addRange and GC.removeRange will be executed.
+
+    Stack:
+    [-0, +1]
+
+    概要:
+    クラスの及び構造体の static/非static なメンバ関数を Lua から呼び出し
     可能な関数として登録する。
 
+    詳細:
     戻り値として返されるメモリ領域は Lua により確保され、Lua の GC によって管理
     されている。
     D言語の GC に対する GC.addRange と GC.removeRange は自動で実行される。
 
-    Stack:
-        [-0, +1]
+    スタック:
+    [-0, +1]
     **/
     auto push(alias T, A...)(A args) if (is(T == class) || is(T == struct))
     { return push(newUserData!T(args)).remove(-2); }
 
-    /** enum をインストールする。
+    /** Stack up an enum as table.
+
     Stack:
-      [-0, +1]
+    [-0, +1]
+
+    概要:
+    enum をインストールする。
+
+    スタック:
+    [-0, +1]
      **/
     auto push(T)() if (is(T == enum))
     {
@@ -459,35 +831,69 @@ struct LuaState
         return this;
     }
 
-    /** スタックに nil を積む。
+    /** Stack up a nil.
+
     Stack:
-        [+1, -0]
+    [+1, -0]
+
+    概要:
+    スタックに nil を積む。
+
+    スタック:
+    [+1, -0]
     **/
     @nogc nothrow
     LuaState pushNil() { lua_pushnil(_l); return this; }
 
-    /** スタック頂上の値を取り除く。
+    /** Remove a value form the top of the stack.
     Stack:
+    [-i, +0]
+
+    概要:
+    スタック頂上の値を取り除く。
+
+    スタック:
         [-i, +0]
     **/
     @nogc nothrow
     LuaState pop(int i = 1) { lua_settop(_l, -i-1); return this; }
 
-    /** スタック上の値の型情報
+    /** Get the type information of position i on the stack.
+
     Stack:
-        [-0, +0]
+    [-0, +0]
+
+    概要:
+    スタック上の値の型情報
+
+    スタック:
+    [-0, +0]
     **/
     @nogc nothrow
     int type(int i) { return lua_type(_l, i); }
 
-    /**
+    /** Whether the type of position i on the stack is T.
+
     Stack:
-        [-0, +0]
+    [-0, +0]
+
+    スタック:
+    [-0, +0]
     **/
     @nogc nothrow
     bool isType(int T)(int i) { return T == lua_type(_l, i); }
 
-    // type の戻り値を文字列に変換する。
+    /** Convert type to string.
+
+    Stack:
+    [-0, +0]
+
+    概要:
+    type の戻り値を文字列に変換する。
+
+    スタック:
+    [-0, +0]
+    **/
     static @nogc pure nothrow
     string typeName(int i)
     {
@@ -507,20 +913,35 @@ struct LuaState
         assert(0);
     }
 
-    /** スタック上の値を型指定して取り出す。
+    /** Get a value on the stack as type T.
+
+    getAs!(const(char)[]) returns a string that allocated by Lua.
+    getAs!string return a string that allocated by D.
+    whichever, the string ends with '\0'
+
+    Stack:
+    [-0, +0]
+
+    Throws:
+    Exception = when the type is not T.
+
+    概要:
+    スタック上の値を型指定して取り出す。
+
+    詳細:
     getAs!(const(char)[]) で Lua が確保した文字列を返します。
     その為、Lua に処理が戻った後の値は未定義です。
     Lua が確保した文字列は、Null終端が保証されています。
     getAs!string では idup されます。これも Null終端が保証されます。
 
-    Stack:
-        [-0, +0]
+    スタック:
+    [-0, +0]
 
-    Throws:
-        Exception = 指定の型ではなかった場合
+    例外:
+    Exception = 指定の型ではなかった場合
     **/
     T getAs(T)(int i){ return _getAs!(T, true)(i); }
-    /// デフォルト値つき。
+    /// ditto
     T getAs(T)(int i, T def){ return _getAs!(T, false)(i, def); }
 
     ///
@@ -533,9 +954,16 @@ struct LuaState
     @nogc nothrow
     auto getThread(int i) { return lua_tothread(_l, i); }
 
-    /** スタック上の i の位置の値を文字列に直して取得する。debugにも。
+    /** Get a string expression of the value on the stack.
+
     Stack:
-        [-0, +0]
+    [-0, +0]
+
+    概要:
+    スタック上の i の位置の値を文字列に直して取得する。debugにも。
+
+    スタック:
+    [-0, +0]
     **/
     string getStringAt(int i)
     {
@@ -570,25 +998,43 @@ struct LuaState
 
     //--------------------------------------------------------------------------
     // about table
-    /** グローバルスコープのテーブルにアクセスし、値をスタックに積む。
+    /** Stack up a value to the stack from Lua's global scope table.
+
     Stack:
-        [-0, +1]
+    [-0, +1]
+
+    概要:
+    グローバルスコープのテーブルにアクセスし、値をスタックに積む。
+
+    スタック:
+    [-0, +1]
     **/
     @nogc nothrow
     LuaState getGlobal(const(char)* name)
     { lua_getglobal(_l, name); return this; }
 
-    /**
+    /** Expose the value on the top of the stack to Lua's global scope.
+
     Stack:
-        [-1, +0]
+    [-1, +0]
+
+    スタック:
+    [-1, +0]
     **/
     @nogc nothrow
     LuaState setGlobal(const(char)* name)
     { lua_setglobal(_l, name); return this; }
 
-    /** スタック上の i の位置にあるテーブルから値を取り出す。
+    /** Retrieve a value from a table on the stack.
+
     Stack:
-        [-0, +0]
+    [-0, +0]
+
+    概要:
+    スタック上の i の位置にあるテーブルから値を取り出す。
+
+    スタック:
+    [-0, +0]
     **/
     T getFieldAs(T, K)(int i, K key) { return _getFieldAs!(T, true)(i, key); }
     /// ditto
@@ -604,9 +1050,13 @@ struct LuaState
     private enum NAME_KEY = "_name_";
     private enum INSTANCE_KEY = "_instance_";
 
-    /**
+    /** Set a field of a table on the stack.
+
     Stack:
-        [-0, +0]
+    [-0, +0]
+
+    スタック:
+    [-0, +0]
     **/
     LuaState setField(T, K)(int i, K key, T val)
     {
@@ -617,11 +1067,16 @@ struct LuaState
         return this;
     }
 
-    /**
-    value はスタックの頂上に積まれているものとする。
+    /** Set a value on the top of the stack to a field of a table on the stack.
 
     Stack:
-        [-1, +0]
+    [-1, +0]
+
+    概要:
+    value はスタックの頂上に積まれているものとする。
+
+    スタック:
+    [-1, +0]
     **/
     LuaState setField(K)(int i, K key)
     {
@@ -636,53 +1091,91 @@ struct LuaState
     //--------------------------------------------------------------------------
     // about registry
 
-    /** レジストリの値をスタックに積む。
+    /** Retrieve a value from the registry.
+    Then stack up the value to the stack.
+
     Stack:
-        [-0, +1]
+    [-0, +1]
+
+    概要:
+    レジストリの値をスタックに積む。
+
+    スタック:
+    [-0, +1]
     **/
     @nogc
     LuaState getRegistry(K)(K key)
     { push(key); lua_gettable(_l, LUA_REGISTRYINDEX); return this; }
 
-    /** レジストリから値を取り出す。
+    /** Get a value from the registry.
+
     Stack:
-        [-0, +0]
+    [-0, +0]
+
+    概要:
+    レジストリから値を取り出す。
+
+    スタック:
+    [-0, +0]
     **/
     T getRegistryAs(T, K)(K key)
     { return _getFieldAs!(T, true)(LUA_REGISTRYINDEX, key); }
-
     /// ditto
     T getRegistryAs(T, K)(K key, T def)
     { return _getFieldAs!(T, false)(LUA_REGISTRYINDEX, key, def); }
 
-    /**
+    /** Set val to the registry.
+
     Stack:
-        [-0, +0]
+    [-0, +0]
+
+    スタック:
+    [-0, +0]
     **/
     @nogc nothrow
     LuaState setRegistry(T, K)(K key, T val)
     { setField(LUA_REGISTRYINDEX, key, val); return this; }
 
-    /**
-    value はスタックの頂上に積まれているものとする。
+    /** Set a value of the top of the stack to the registry.
+
     Stack:
-        [-1, +0]
+    [-1, +0]
+
+    value はスタックの頂上に積まれているものとする。
+
+    スタック:
+    [-1, +0]
     **/
     @nogc nothrow
     LuaState setRegistry(K)(K key)
     { setField(LUA_REGISTRYINDEX, key); return this; }
 
-    /** スタック頂上にある値をレジストリへ保存し、値への key を返す。
+    /** Set a value of the top of the stack to the registry.
+    Then return the key that refer the value.
+
     Stack:
-        [-1, +0]
+    [-1, +0]
+
+    概要:
+    スタック頂上にある値をレジストリへ保存し、値への key を返す。
+
+    スタック:
+    [-1, +0]
     **/
     @nogc nothrow
     LuaRegRef getRefRegistry()
     { return LuaRegRef(luaL_ref(_l, LUA_REGISTRYINDEX)); }
 
-    /** レジストリから key に保存されている値を削除する。
+    /** Remove the registry value.
+
     Stack:
-        [-0, +0]
+    [-0, +0]
+
+    概要:
+    レジストリから key に保存されている値を削除する。
+
+    スタック:
+    [-0, +0]
     **/
     @nogc nothrow
     LuaState unRefRegistry(LuaRegRef key)
@@ -693,7 +1186,10 @@ struct LuaState
     // raw access
     /**
     Stack:
-        [-0, +1]
+    [-0, +1]
+
+    スタック:
+    [-0, +1]
     **/
     T rawGetAs(T)(int i, int n)
     {
@@ -701,68 +1197,106 @@ struct LuaState
         return _getAs!(T, true)(-1);
     }
 
-    /** スタック上の位置 i にある配列/テーブルの table[n]を取り出してスタックに
-    積む
-
+    /**
     Stack:
-        [-0, +1]
+    [-0, +1]
+
+    概要:
+    スタック上の位置 i にある配列/テーブルの table[n]を取り出してスタックに積む
+
+    スタック:
+    [-0, +1]
     **/
     @nogc nothrow
     LuaState rawGet(int i, int n) { lua_rawgeti(_l, i, n); return this; }
 
-    /** キーは lightuserdata
+    /** The key is a lightuserdata.
+
     Stack:
-        [-0, +1]
+    [-0, +1]
+
+    概要:
+    キーは lightuserdata
+
+    スタック:
+    [-0, +1]
     **/
     @nogc nothrow
     LuaState rawGet(int i, const(void)* p)
     { lua_rawgetp(_l, i, p); return this; }
 
-    /** スタック上の位置 i にある配列/テーブルの table[key] を取り出してスタック
-    に積む
-    key はスタックの頂上に積まれているものとする。
-
+    /**
     Stack:
-        [-1, +1]
+    [-1, +1]
+
+    詳細:
+    スタック上の位置 i にある配列/テーブルの table[key] を取り出してスタックに積
+    む。 key はスタックの頂上に積まれているものとする。
+
+    スタック:
+    [-1, +1]
     **/
     @nogc nothrow
     LuaState rawGet(int i) { lua_rawget(_l, i); return this; }
 
 
-    /** スタック上の位置 i にある配列/テーブルの table[n] に値を設定する。
-    設定される値は、スタックの頂上に積まれているものとする。
+    /**
     Stack:
-        [-1, +0]
+    [-1, +0]
+
+    詳細:
+    スタック上の位置 i にある配列/テーブルの table[n] に値を設定する。
+    設定される値は、スタックの頂上に積まれているものとする。
+
+    スタック:
+    [-1, +0]
     **/
     @nogc nothrow
     LuaState rawSet(int i, int n) { lua_rawseti(_l, i, n); return this; }
 
-    /** キーは lightuserdata
+    /**
     Stack:
-        [-1, +0]
+    [-1, +0]
+
+    概要:
+    キーは lightuserdata
+
+    スタック:
+    [-1, +0]
     **/
     @nogc nothrow
     LuaState rawSet(int i, const(void)* p)
     { lua_rawsetp(_l, i, p); return this; }
 
-    /** キー → 値 = 頂上 の順にスタックに積まれているものとする。
+    /**
     Stack:
-        [-1, +0]
+    [-1, +0]
+
+    概要:
+    キー → 値 = 頂上 の順にスタックに積まれているものとする。
+
+    スタック:
+    [-1, +0]
     **/
     @nogc nothrow
     LuaState rawSet(int i) { lua_rawset(_l, i); return this; }
 
 
-    /** レジストリから key = n の値を取り出し、スタックに積む。
+    /**
     Stack:
-        [-0, +1]
+    [-0, +1]
+
+    概要:
+    レジストリから key = n の値を取り出し、スタックに積む。
+
+    スタック:
+    [-0, +1]
     **/
     T rawGetRegistryAs(T)(LuaRegRef n)
     {
         lua_rawgeti(_l, LUA_REGISTRYINDEX, cast(int)n);
         return _getAs!(T, true)(-1);
     }
-
     /// ditto
     T rawGetRegistryAs(T)(const(void)* p)
     {
@@ -770,49 +1304,85 @@ struct LuaState
         return _getAs!(T, true)(-1);
     }
 
-    /** レジストリから key=n の値を取り出し、スタックに積む
+    /**
     Stack:
-        [-0, +1]
+    [-0, +1]
+
+    概要:
+    レジストリから key=n の値を取り出し、スタックに積む
+
+    スタック:
+    [-0, +1]
     **/
     @nogc nothrow
     LuaState rawGetRegistry(LuaRegRef n)
     { lua_rawgeti(_l, LUA_REGISTRYINDEX, cast(int)n); return this; }
 
-    /** キーは lightuserdata
+    /**
     Stack:
-        [-0, +1]
+    [-0, +1]
+
+    概要:
+    キーは lightuserdata
+
+    スタック:
+    [-0, +1]
     **/
     @nogc nothrow
     LuaState rawGetRegistry(const(void)* p)
     { lua_rawgetp(_l, LUA_REGISTRYINDEX, p); return this; }
 
-    /** キーはスタックの頂上にある
+    /**
     Stack:
-        [-1, +1]
+    [-1, +1]
+
+    概要:
+    キーはスタックの頂上にある
+
+    スタック:
+    [-1, +1]
     **/
     @nogc nothrow
     LuaState rawGetRegistry()
     { lua_rawget(_l, LUA_REGISTRYINDEX); return this; }
 
-    /** スタックの頂上に積まれている値をレジストリの key=n に設定する。
+    /**
     Stack:
-        [-1, +0]
+    [-1, +0]
+
+    概要:
+    スタックの頂上に積まれている値をレジストリの key=n に設定する。
+
+    スタック:
+    [-1, +0]
     **/
     @nogc nothrow
     LuaState rawSetRegistry(LuaRegRef n)
     { lua_rawseti(_l, LUA_REGISTRYINDEX, cast(int)n); return this;}
 
-    /** キーは lightuserdata
+    /**
     Stack:
-        [-1, +0]
+    [-1, +0]
+
+    概要:
+    キーは lightuserdata
+
+    スタック:
+    [-1, +0]
     **/
     @nogc nothrow
     LuaState rawSetRegistry(const(void)* p)
     { lua_rawsetp(_l, LUA_REGISTRYINDEX, p); return this; }
 
-    /** キーはスタックの頂上にある。
+    /**
     Stack:
-        [-2, +0]
+    [-2, +0]
+
+    概要:
+    キーはスタックの頂上にある。
+
+    スタック:
+    [-2, +0]
     **/
     @nogc nothrow
     LuaState rawSetRegistry()
@@ -820,8 +1390,15 @@ struct LuaState
 
     //--------------------------------------------------------------------------
     // userdata
-    /** ユーザーデータを作り、スタックに積む。
+    /** Create a new userdata, then stack up the userdata to the stack.
 
+    Stack:
+    [-0, +1]
+
+    概要:
+    ユーザーデータを作り、スタックに積む。
+
+    詳細:
     ユーザーデータとして確保された領域は、GC.addRange される。
     つまり、メンバ変数に D言語側で new した値が格納されていても GC が検出
     できる。よね。
@@ -829,11 +1406,11 @@ struct LuaState
     GC.removeRange が呼ばれる。
     metamethod table は fullyQualifiedName でレジストリに登録される。
 
-    Notice:
-        この値をpopしてしまうとスコープアウトする為、注意。
+    注意:
+    この値をpopしてしまうとスコープアウトする為、注意。
 
-    Stack:
-        [-0, +1]
+    スタック:
+    [-0, +1]
     **/
     nothrow
     auto newUserData(T, ARGS...)(ARGS args)
@@ -852,15 +1429,19 @@ struct LuaState
         else return emplace!T(t[0..L], args);
     }
 
-    /// GC.addRange されない生ポ
+    /** Create a raw userdata.
+
+    概要:
+    GC.addRange されない生ポ
+    **/
     @nogc nothrow
     void* newUserData(T: size_t)(T size) { return lua_newuserdata(_l, size); }
 
     //--------------------------------------
     // about calling a function in lua
 
-    /// Lua の関数を呼び出す。戻り値は、std.typecons.Tuple。
-    /// 戻り値が一つの場合でも Tuple でラップされた値が戻る。
+    // Lua の関数を呼び出す。戻り値は、std.typecons.Tuple。
+    // 戻り値が一つの場合でも Tuple でラップされた値が戻る。
     template callFunc(R...)
     {
         Tuple!R callFunc(ARGS...)(const(char)* f, ARGS args)
@@ -870,20 +1451,34 @@ struct LuaState
         }
     }
 
-    /** Lua のグローバルスコープから関数名 name の関数を取り出し、
+    /** Retrieve a function from Lua's global scope.
+    Then set the function to the registry.
+
+    Stack:
+    [-0, +0]
+
+    概要:
+    Lua のグローバルスコープから関数名 name の関数を取り出し、
     Lua のレジストリに登録しする。戻り値のファンクタを呼び出すことで関数を実行
     できる。
 
-    Stack:
-        [-0, +0]
+    スタック:
+    [-0, +0]
     **/
     auto getFunc(const(char)* name = null, R...)()
     { return FuncOfLua!(name, R)(this); }
 
 
-    /** スタック上の全てを文字列にして返す。debug に。
+    /** Get a string expression of the whole stack.
+
     Stack:
-        [-0, +0]
+    [-0, +0]
+
+    概要:
+    スタック上の全てを文字列にして返す。debug に。
+
+    スタック:
+    [-0, +0]
     **/
     string dumpStack()
     {
@@ -1129,7 +1724,11 @@ private:
 //##############################################################################
 
 //------------------------------------------------------------------------------
-/// Lua のエラー情報を持つ例外
+/** An exception class containing the error information of Lua.
+
+概要:
+Lua のエラー情報を持つ例外
+**/
 class LuaException : Exception
 {
     this(lua_State* l, string msg, string f = __FILE__, size_t ln = __LINE__)
@@ -1143,7 +1742,11 @@ class LuaException : Exception
 
 
 //------------------------------------------------------------------------------
-/// 関数の引数などとして、Lua のテーブルを扱う。中身は std.typecons.Tuple
+/** An expression of Lua's table.
+
+概要:
+関数の引数などとして、Lua のテーブルを扱う。中身は std.typecons.Tuple
+**/
 struct LuaTable(Specs ...)
 {
     alias Type = Tuple!Specs;
@@ -1163,6 +1766,7 @@ struct LuaTable(Specs ...)
 
 //------------------------------------------------------------------------------
 /**
+概要:
 Lua から呼ばれるD言語の関数の引数として利用すると、
 Lua がスタックに積んだ実際のテーブル上にメンバがなくても例外を投げない。
 **/
@@ -1173,20 +1777,26 @@ struct LuaTableLoose(Specs ...)
 }
 
 //------------------------------------------------------------------------------
-/** LuaTable のメンバとして使うと、デフォルト値を設定できる。
+/**
+概要:
+LuaTable のメンバとして使うと、デフォルト値を設定できる。
 中身は std.typecons.Typedef.
 **/
 alias Loosely = Typedef;
 
 //------------------------------------------------------------------------------
 /**
+概要:
 LuaState.install により登録され、Lua から呼び出される関数の戻り値として使うと、
 Lua への戻り値は既にスタック上に頂上から num 個積まれていることを示す。
 **/
 alias OnStack = Typedef!int;
 
 //------------------------------------------------------------------------------
-/// レジストリへの参照を特に格納する。
+/**
+概要:
+レジストリへの参照を特に格納する。
+**/
 alias LuaRegRef = Typedef!int;
 
 
@@ -1309,6 +1919,7 @@ int funcWrapper(alias T)(lua_State* ls) if (__traits(isStaticFunction, T))
 }
 
 /* Luaから D の関数を呼び出す為のラッパ
+
 引数と戻り値の型でインスタンスが分かれる。
 LuaState から引数のpop → 関数本体の呼び出し → 戻り値の push までを行う。
 関数 f がタプルを返す場合、中身を展開して、複数個の戻り値として push
@@ -1369,8 +1980,9 @@ int callWrapper(alias F, T)(LuaState l, T f)
 
 
 /* パッケージ登録の為の、関数名と関数ポインタからなる luaL_Reg を得る。
+
 Params:
-    T = struct か class。
+T = struct か class。
 */
 private nothrow
 luaL_Reg[] memRegs(T)()
@@ -1505,9 +2117,10 @@ int delWrapper(T)(lua_State* ls)
 }
 
 /* 非static なメンバ関数を Lua から呼び出す為のラッパ
+
 Params:
-    T = メンバ関数を含む struct か class。
-    F = 関数名
+T = メンバ関数を含む struct か class。
+F = 関数名
 */
 extern(C) static nothrow
 int memWrapper(T, string F)(lua_State* ls)
@@ -1529,8 +2142,8 @@ int memWrapper(T, string F)(lua_State* ls)
 
 /* 引数が lua_State* か、もしくは LuaState だった場合はそれを提供する。
 
-   Throws:
-   Exception = 引数の数が足りなかった場合に投げられる。
+Throws:
+Exception = 引数の数が足りなかった場合に投げられる。
 */
 private
 auto getArgs(F...)(LuaState l)
@@ -1634,12 +2247,13 @@ struct FuncOfLua(const(char)* name, R...)
 }
 
 /* パニック関数。
+
 exit を呼び出しています。
 
-Stack:
-    [-0, +0]
+スタック:
+[-0, +0]
 
-BUG:
+バグ:
     この atpanic関数の処理後、Lua に処理を戻すとクラッシュ。
     -> std.c.stdlib.abort がクラッシュ。
 */
@@ -1676,14 +2290,12 @@ int _atpanic(lua_State* l)
 //##################XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX####################
 //##################XXXXXXXXXXXXXXX D E B U G XXXXXXXXXXXXXX####################
 //##################XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX####################
+version (D_Ddoc){} else:
 debug(lua):
 
-enum _VERSION_ = "0.0002(dmd2.069.2)";
-enum _AUTHORS_ = "KUMA";
-enum _LICENSE_ = "CC0";
-
-enum HEADER = "LuaWD ver." ~ _VERSION_ ~ " written by " ~ _AUTHORS_ ~ ", " ~
-    "licensed under " ~ _LICENSE_ ~ ".";
+enum _VERSION_ = "0.0003(dmd2.070.2)";
+enum HEADER = "LuaWD ver." ~ _VERSION_ ~ " written by KUMA, " ~
+    "licensed under CC0.";
 
 //--------------------------------------
 version (InJapanese)

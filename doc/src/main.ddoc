@@ -1,0 +1,36 @@
+BR = <br />
+HR = <hr />
+
+DDOC = <dt id="$(TITLE)">$(TITLE)</dt>
+  <dd name="$(TITLE)">
+    $(BODY)
+  </dd>
+
+D_PARAM = <span class='param'>$0</span>
+D_STRING = <q>$0</q>
+D_KEYWORD = <span class='dkeyword'>$0</span>
+D_COMMENT = <span class='dcomment'>$0</span>
+DDOC_DECL = $(DT <span class='decl'>$0</span>)
+DDOC_PSYMBOL = <span class='psymbol'>$0</span>
+DDOC_MEMBERS = $(DL $0)
+DDOC_PARAM = <span class='param'>$0</span>
+DDOC_SUMMARY = <div class='section summary'><div class='section-header'>Summary:</div>$0</div>
+DDOC_DESCRIPTION = <div class='section description'><div class='section-header'>Description:</div>$0</div>
+DDOC_VERSION = <div class='summary-header-sec version-sec'>$0</div>
+DDOC_DATE = <div class='summary-header-sec date-sec'>$0</div>
+DDOC_AUTHORS = <div class='summary-header-sec authors-sec'>$0</div>
+DDOC_LICENSE = <div class='summary-header-sec license-sec'>$0</div>
+DDOC_THROWS = <div class='section throws'><div class='section=header'>Throws:</div>$0</div>
+DDOC_MEMBERS = <dl class='members-sec'>$0</dl>
+DDOC_MODULE_MEMBERS = <dl class='module-members-sec'>$0</dl>
+DDOC_KEYWORD = <span class='dkeyword'>$0</span>
+DDOC_PARAMS = $(B Params:)$(BR)<table border='1' cellpadding='8' cellspacing='0' frame='void' rules='rows' class='params'>$0</table>$(BR)
+DDOC_PARAM_ID = <td class='params_id'>$0</td>
+DDOC_BUGS = <div class='section bugs'><div class='section-header'>BUGS:</div>$0</div>
+DDOC_ANCHOR = <a class="anchor" name="$0" id="$(TITLE).$1"></a>
+DDOC_BLANKLINE =
+DDOC_SECTION_H = <div class="section-header">$0</div>
+DDOC_SECTION = <div class="section">$0</div>
+DDOC_HISTORY = <div class="section"><div class="section-header">History:</div>$0</div>
+
+OLI = <li>$0</li>

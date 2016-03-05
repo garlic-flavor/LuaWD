@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type"
+              content="text/html; charset=utf-8" />
+        <meta http-equiv="Content-Style-Type"
+              content="text/css" />
+        <meta http-equiv="Content-Script-Type"
+              content="text/javascript" />
+
+        <link rel="stylesheet" href="style/main.css" />
+        <script src="script/jquery-2.1.4.js"></script>
+        <script src="script/main.js"></script>
+
+    </head>
+    <body>
+        <div id="left-pain"></div>
+        <h1 id="main-title"></h1>
+        <div id="language-selector">
+        </div>
+        <div id="main-pain">
+            <dl id="modules">
+<dt id="sworks.lua">sworks.lua</dt>
+  <dd name="sworks.lua">
+    <div class='section summary'><div class='section-header'>Summary:</div>LuaWD - a Lua Wrapper for D -
+</div>
+<div class='summary-header-sec version-sec'>0.0003(dmd2.070.2)
+</div>
+<div class='summary-header-sec date-sec'>2016-Mar-05 22:43:01
+</div>
+<div class='summary-header-sec authors-sec'>KUMA
+
+</div>
+<div class="section"><div class="section-header">What is this:</div>
+This is a wrapper library of <a href="http://www.lua.org/">Lua</a> for <a href="http://dlang.org/">D Programming Language</a>.
+lua52.dll and sample.exe is for Windows(amd64).
+
+</div>
+<div class="section"><div class="section-header">For ordinary users:</div>
+Use <a href="https://github.com/JakobOvrum/LuaD">LuaD</a>.
+
+</div>
+<div class="section"><div class="section-header">How to build:</div>
+Please ensure that dmd can find <a href="https://github.com/DerelictOrg/DerelictLua">DerelictLua</a>.
+
+</div>
+<div class="section"><div class="section-header">How to use:</div>
+<pre class="d_code">(<span class='dkeyword'>new</span> LuaState)                  <span class='dcomment'>// initialize
+</span>    .push!my_stdout             <span class='dcomment'>// push my_stdout to Lua's stack.
+</span>    .setGlobal(<q>"print"</q>)         <span class='dcomment'>//
+</span>    .doString(                  <span class='dcomment'>// invoke a script.
+</span>    <q>q{
+        print("hello, world!")  -- call D from Lua
+    }</q>);
+</pre>
+
+</div>
+<div class="section"><div class="section-header">Properties:</div>
+<table><tr><th>functionarity</th>             <th>support</th></tr>
+
+<tr><td>Tested OS</td>                 <td>Windows, Linux</td></tr>
+<tr><td>Lua version</td>               <td>5.2</td></tr>
+<tr><td>dmd version</td>               <td>2.070.2</td></tr>
+<tr><td>Low level interfaces</td>      <td>No, depend on DerelictLua</td></tr>
+<tr><td>Capsuled stack operations</td> <td>partially</td></tr>
+<tr><td>Error handling</td>            <td>partially(*1)</td></tr>
+</table>
+
+
+(*1) Any restoration from atpanic function is impossible.
+
+</div>
+<div class="section"><div class="section-header">Type conversion:</div>
+<table><tr><th>D type</th>              <th>Lua type</th></tr>
+
+<tr><td>bool</td>                <td>Bool</td></tr>
+<tr><td>ptrdiff_t</td>           <td>Number</td></tr>
+<tr><td>double</td>              <td>Number</td></tr>
+<tr><td>ireal</td>               <td>N/A</td></tr>
+<tr><td>struct</td>              <td>Table</td></tr>
+<tr><td>class</td>               <td>lightuserdata + Metatable</td></tr>
+<tr><td>array</td>               <td>Table</td></tr>
+<tr><td>AA</td>                  <td>Table</td></tr>
+<tr><td>std.typecons.Tuple</td>  <td>Sequential values on the stack</td></tr>
+<tr><td>function/delegate</td>   <td>function</td></tr>
+</table>
+
+</div>
+<div class="section"><div class="section-header">Licensed under:</div>
+<a href="https://creativecommons.org/publicdomain/zero/1.0/">https://creativecommons.org/publicdomain/zero/1.0/</a>
+(about lua52.dll, please see <a href="http://www.lua.org/license.html">Lua License</a>)
+
+</div>
+<div class="section"><div class="section-header">Wanna be:</div>
+<ul><li>XD</li>
+</ul>
+
+</div>
+<div class="section"><div class="section-header">History:</div><ul><li>2016-03-05 ver.0.0003(dmd2.070.2) new document.</li>
+<li>2016-01-15 ver.0.0002(dmd2.069.2) make LuaState struct.</li>
+<li>2016-01-12 ver.0.0001(dmd2.069.2) the first commit.</li>
+</ul>
+
+
+<hr />
+
+</div>
+<div class="section"><div class="section-header">これは:</div>
+これは、<a href="http://dlang.org/">D言語</a>から<a href="http://www.lua.org/">Lua</a>を
+使う為のラッパライブラリです。
+付属の lua52.dll と sample.exe は 64bit Windows 用です。
+
+</div>
+<div class="section"><div class="section-header">初めての方へ:</div>
+<a href="https://github.com/JakobOvrum/LuaD">LuaD</a>を使って下さい。
+
+</div>
+<div class="section"><div class="section-header">使い方:</div>
+<pre class="d_code">(<span class='dkeyword'>new</span> LuaState)                  <span class='dcomment'>// 初期化
+</span>    .push!my_stdout             <span class='dcomment'>// 関数 my_stdouf への参照をスタックに積む。
+</span>    .setGlobal(<q>"print"</q>)         <span class='dcomment'>// 積んでるものをLuaのグローバルスコープへ。
+</span>    .doString(                  <span class='dcomment'>// スクリプトの実行。
+</span>    <q>q{
+        print("hello, world!")  -- D言語の関数の呼び出し
+    }</q>);
+</pre>
+
+</div>
+<div class="section"><div class="section-header">特徴:</div>
+<table><tr><th>機能</th>                               <th>実装</th></tr>
+
+<tr><td>テスト環境</td>                         <td>Windows, Linux</td></tr>
+<tr><td>Lua のヴァージョン</td>                 <td>5.2</td></tr>
+<tr><td>dmd のヴァージョン</td>                 <td>2.070.2</td></tr>
+<tr><td>LuaのCインターフェイスへのアクセス</td> <td>× DerelictLuaを使います。</td></tr>
+<tr><td>Luaのスタック操作の隠蔽</td>            <td>△</td></tr>
+<tr><td>エラー処理</td>                         <td>△(*1)</td></tr>
+</table>
+(*1) atpanic関数からの復帰は不可能です。
+
+</div>
+<div class="section"><div class="section-header">型変換:</div>
+<table><tr><th>D の型</th>              <th>Lua の型</th></tr>
+
+<tr><td>bool</td>                <td>Bool</td></tr>
+<tr><td>ptrdiff_t</td>           <td>Number</td></tr>
+<tr><td>double</td>              <td>Number</td></tr>
+<tr><td>ireal</td>               <td>N/A</td></tr>
+<tr><td>struct</td>              <td>Table</td></tr>
+<tr><td>class</td>               <td>lightuserdata + Metatable</td></tr>
+<tr><td>array</td>               <td>Table</td></tr>
+<tr><td>AA</td>                  <td>Table</td></tr>
+<tr><td>std.typecons.Tuple</td>  <td>スタック上の連続した値</td></tr>
+<tr><td>function/delegate</td>   <td>function</td></tr>
+</table>
+
+</div>
+<div class="section"><div class="section-header">ビルド:</div>
+<ul><li><a href="https://github.com/DerelictOrg/DerelictLua">DerelictLua</a>を利用して
+  います。 import / link できるようにしてください。</li>
+<li>src/sworks/<span class='psymbol'>lua</span>.d をプロジェクトに参加させて下さい。</li>
+</ul>
+
+</div>
+<div class="section"><div class="section-header">謝辞:</div>
+<ul><li><a href="http://dlang.org/">D Programming Language</a> 用のライブラリです。</li>
+<li>Lua用のバインディングに<a href="https://github.com/DerelictOrg/DerelictLua">DerelictLua</a>を使っています。</li>
+</ul>
+
+</div>
+<div class="section"><div class="section-header">ライセンス:</div>
+<a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>
+(lua52.dll に関しては<a href="http://www.lua.org/license.html">Luaライセンス</a>を参照して下さい。)
+
+</div>
+<div class="section"><div class="section-header">今後の方針:</div>
+<ul><li>(´・ω・`)</li>
+</ul>
+
+</div>
+<div class="section"><div class="section-header">履歴:</div>
+<ul><li>2016-03-05 ver.0.0003(dmd2.070.2) 新しいドキュメントに。</li>
+<li>2016-01-15 ver.0.0002(dmd2.069.2) LuaState を構造体に。</li>
+<li>2016-01-12 ver.0.0001(dmd2.069.2) 初代</li>
+</ul>
+
+
+<hr /></div>
+
+<dl class='module-members-sec'><dt><span class='decl'><a class="anchor" name="LuaState" id="sworks.lua.LuaState"></a>struct <span class='psymbol'>LuaState</span>;
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>A main interface.
+</div>
+<div class='section description'><div class='section-header'>Description:</div>This is a wrapper for <a href="http://www.lua.org/">Lua 5.2</a>.
+This module depends on <a href="https://github.com/DerelictOrg/DerelictLua">Derelict3</a>.
+On Windows, this module requires lua52.dll.
+
+</div>
+<div class='section bugs'><div class='section-header'>BUGS:</div>The destructor allocated in userdata is not executed. @dmd2.069.2
+
+</div>
+<div class="section"><div class="section-header">About exception:</div>
+<ol><li>Lua's atpanic function calls C's abort function.</li>
+<li>At dmd2.067.0-b1, C's abort function causes an abnormal termination.</li>
+<li>From 1 and 2, <span class='psymbol'>LuaState</span> defined atpanic function as to call C's
+  exit function.</li>
+<li>From 3, restoration from atpanic is impossible.</li>
+<li>From 4, you should use lua_pcall.</li>
+<li>From 4, you shouldn't use lua_error in D.</li>
+<li>Lua couldn't catch any exception from D.</li>
+<li>From 7, a D's function called from Lua should hand the debugging
+  information to lua_error function.</li>
+<li>From 8, <span class='psymbol'>LuaState</span> will catch the exception and call lua_error with
+  its debugging information.</li>
+<li>From 9, you should throw any exceptions when required.</li>
+<li>From 7, when you use a lua_CFunction type function, you should do the
+  routine that required.</li>
+</ol>
+
+</div>
+<div class="section"><div class="section-header">About this documentation:</div>
+A 'Stack:' section, describes about the stack increasing and decreaseing.
+For example,
+<pre class="d_code">Stack:
+[-2, +3]
+</pre>
+The Above indicates that two values will be removed form the stack, then three
+values will be pushed to the stack.
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+Lua へのインターフェイス
+
+</div>
+<div class="section"><div class="section-header">詳細:</div>
+これは <a href="http://www.lua.org/">Lua</a> へのラッパです。Lua 5.2に準拠していま
+す。
+porting として <a href="https://github.com/DerelictOrg/DerelictLua, DerelictLua">https://github.com/DerelictOrg/DerelictLua, DerelictLua</a>
+を利用しています。
+Windows では実行時に lua52.dll を参照します。
+
+</div>
+<div class="section"><div class="section-header">バグ:</div>
+userdataに確保された構造体のデストラクタが実行されない。@dmd2.069.2
+
+</div>
+<div class="section"><div class="section-header">例外処理:</div>
+<ol><li>Lua のエラーハンドリング戦略である atpanic関数は終了後に abort関数を呼び
+  出します。</li>
+<li>dmd2.067.0-b1 時点で、abort が呼ばれるとプログラムはクラッシュします。</li>
+<li>1、 2 より <span class='psymbol'>LuaState</span> は atpanic 関数内で exit 関数を呼び出しています
+  。</li>
+<li>3 より、atpanic から D言語への処理の復帰は不可能です。</li>
+<li>4 より、lua_pcall 系の関数を使うべき。</li>
+<li>4 より、D言語から lua_error を呼ぶべきではない。</li>
+<li>Lua ライブラリは D言語の例外を処理できない。スタックトレースの情報もなくな
+  ってしまう。</li>
+<li>7 より、 6 の例外として、Lua から呼ばれているD言語の処理はデバグ情報を
+  lua_error に渡すべき。</li>
+<li>8 より、D言語の関数をラップする <span class='psymbol'>LuaState</span> の機能は例外を受け取り、lua_error
+  を呼び出します。</li>
+<li>9 より、<span class='psymbol'>LuaState</span> のユーザは D言語の例外を利用してください。</li>
+<li>7 より、lua_CFunction 型の関数を使う(Lua から呼び出させる)場合、9 の
+  <span class='psymbol'>LuaState</span> の機能を利用できない為、その処理を自前で行う必要があります。</li>
+</ol>
+
+</div>
+<div class="section"><div class="section-header">このドキュメントに関して:</div>
+関数に関するドキュメント中の "スタック:" セクションは、その関数を実行した際の
+スタックの増減を示します。
+例えば、
+<pre class="d_code">スタック:
+[-2, +3]
+</pre>
+とある場合は、スタック上から値が2個取り除かれた後、3個の値が新たに積まれること
+を意味します。</div>
+
+<dl class='members-sec'><dt><span class='decl'><a class="anchor" name="LuaState.this" id="sworks.lua.LuaState.this"></a>pure nothrow @nogc @trusted this(lua_State* <span class='param'>l</span>);
+</span></dt>
+<dd>
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.init" id="sworks.lua.LuaState.init"></a>@trusted LuaState <span class='psymbol'>init</span>();
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Call luaL_newstate, then register an atpanic function.
+</div>
+<div class='section description'><div class='section-header'>Description:</div>The Atpanic function ends with C's exit function.
+
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+luaL_newstate を呼び出し、パニック関数を登録する。
+
+</div>
+<div class="section"><div class="section-header">詳細:</div>
+登録されるパニック関数は exit() で終了する。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.initYield" id="sworks.lua.LuaState.initYield"></a>@trusted LuaState <span class='psymbol'>initYield</span>();
+</span></dt>
+<dd>
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.clear" id="sworks.lua.LuaState.clear"></a>nothrow @nogc @trusted void <span class='psymbol'>clear</span>();
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>A termination processing (is not required).
+</div>
+<div class="section"><div class="section-header">概要:</div>
+終了処理。必ずしも必要ではない。</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.ptr" id="sworks.lua.LuaState.ptr"></a>inout pure nothrow @nogc @property @trusted auto <span class='psymbol'>ptr</span>();
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>lua_State itself.
+</div>
+<div class="section"><div class="section-header">概要:</div>
+ナカミ</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.openlibs" id="sworks.lua.LuaState.openlibs"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>openlibs</span>();
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Load standard libraries of Lua.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+Luaの標準ライブラリ読み込み。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.loadBuffer" id="sworks.lua.LuaState.loadBuffer"></a>@trusted LuaState <span class='psymbol'>loadBuffer</span>(const(char)[] <span class='param'>buf</span>, const(char)* <span class='param'>name</span> = "anonymous", string <span class='param'>file</span> = __FILE__, size_t <span class='param'>line</span> = __LINE__);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Load a string. then push the string as a function to the stack without
+    execution.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+文字列を読み込んで、Luaの関数としてスタックに積む。実行はしない。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +1]
+</div>
+<div class='section throws'><div class='section=header'>Throws:</div>LuaException = 読み込みに失敗した場合に投げられる。</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.loadFile" id="sworks.lua.LuaState.loadFile"></a>@trusted LuaState <span class='psymbol'>loadFile</span>(const(char)* <span class='param'>fn</span>, string <span class='param'>f</span> = __FILE__, size_t <span class='param'>l</span> = __LINE__);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Load a file. then push the file as a function to the stack without
+    execution.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">Exception:</div>
+LuaException = when failed to loading.
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+ファイルを読み込んで、関数としてスタックに積む。実行はしない。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">例外:</div>
+LuaException = 読み込みに失敗した場合に投げられる。</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.doFile" id="sworks.lua.LuaState.doFile"></a>@trusted LuaState <span class='psymbol'>doFile</span>(const(char)* <span class='param'>fn</span>, string <span class='param'>f</span> = __FILE__, size_t <span class='param'>l</span> = __LINE__);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Load a file. then execute the file.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class='section throws'><div class='section=header'>Throws:</div>LuaException
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+ファイルを読み込んで実行する。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">例外:</div>
+LuaException</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.doString" id="sworks.lua.LuaState.doString"></a>@trusted LuaState <span class='psymbol'>doString</span>(const(char)* <span class='param'>buf</span>, string <span class='param'>f</span> = __FILE__, size_t <span class='param'>l</span> = __LINE__);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Load a string. the execute the string.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class='section throws'><div class='section=header'>Throws:</div>LuaException
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+文字列をスクリプトとして実行する。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">例外:</div>
+LuaException</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.pcall" id="sworks.lua.LuaState.pcall"></a>template <span class='psymbol'>pcall</span>(Returns...)</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Execute the function of the top of the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-1, 0]
+
+</div>
+<div class='section throws'><div class='section=header'>Throws:</div>LuaException
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタック頂上に積まれた関数を実行する。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-1, 0]
+
+</div>
+<div class="section"><div class="section-header">例外:</div>
+LuaException</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.resume" id="sworks.lua.LuaState.resume"></a>template <span class='psymbol'>resume</span>(R...)</span></dt>
+<dd><div class="section"><div class="section-header">概要:</div>
+スクリプトを開始/再開する。</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.isRunning" id="sworks.lua.LuaState.isRunning"></a>nothrow @nogc @property @trusted bool <span class='psymbol'>isRunning</span>();
+</span></dt>
+<dd><div class="section"><div class="section-header">概要:</div>
+前回の resume が yield で終わっているか。</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.checkStack" id="sworks.lua.LuaState.checkStack"></a>nothrow @nogc @trusted bool <span class='psymbol'>checkStack</span>(int <span class='param'>sz</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Whether the stack has enough space for <span class='param'>sz</span>.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタックにこれから積める余裕があるかどうか。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.stackTop" id="sworks.lua.LuaState.stackTop"></a>nothrow @nogc @property @trusted int <span class='psymbol'>stackTop</span>();
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Get the size of the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタックのサイズを得る。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.stackTop.2" id="sworks.lua.LuaState.stackTop.2"></a>nothrow @nogc @property @trusted LuaState <span class='psymbol'>stackTop</span>(int <span class='param'>i</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Set the size of the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-?, +?]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタックのサイズを設定する。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-?, +?]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.abs" id="sworks.lua.LuaState.abs"></a>nothrow @nogc @trusted int <span class='psymbol'>abs</span>(int <span class='param'>i</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Get a positive position on the stack from a negative integer value.
+</div>
+<div class="section"><div class="section-header">概要:</div>
+負の正数で与えられたスタック上の位置を正の整数に変換する。</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.pushValue" id="sworks.lua.LuaState.pushValue"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>pushValue</span>(int <span class='param'>i</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Copy a value on the stack. then push the value to the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタック上の値をコピーし、スタックに積む
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.remove" id="sworks.lua.LuaState.remove"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>remove</span>(int <span class='param'>i</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Remove a value from the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-1, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタックから値を削除
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-1, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.insert" id="sworks.lua.LuaState.insert"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>insert</span>(int <span class='param'>i</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Retrieve a value from the top of the stack. then push the value to
+    the position <span class='param'>i</span> of the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-1, +1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタック頂上の値を <span class='param'>i</span> の位置に挿入。スタックの高さは変わらない。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-1, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.replace" id="sworks.lua.LuaState.replace"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>replace</span>(int <span class='param'>i</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Retrieve a value from the top of the stack. then overwrite the value on
+    the position <span class='param'>i</span> of the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-1, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタック頂上の値を、<span class='param'>i</span> の位置に入れる。スタックの高さは1減る。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-1, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.push" id="sworks.lua.LuaState.push"></a>LuaState <span class='psymbol'>push</span>(Args...)(Args <span class='param'>args</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Stack up a value to the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタックに値を積む。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.push.2" id="sworks.lua.LuaState.push.2"></a>LuaState <span class='psymbol'>push</span>(alias T)() if (is(typeof(&amp;T) : lua_CFunction) || !is(T) &amp;&amp; !isCallable!T);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Stack up a function that is callable without wrapper from Lua.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0|1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+Lua からそのまま呼び出し可能な関数、あるいは参照可能な値の登録。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0|1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.push.3" id="sworks.lua.LuaState.push.3"></a>nothrow @nogc auto <span class='psymbol'>push</span>(alias T)() if (__traits(isStaticFunction, T) &amp;&amp; !is(typeof(&amp;T) : lua_CFunction));
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Stack up a function that can be taken its alias.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0|1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+Lua から呼び出し可能な関数を登録する。
+
+</div>
+<div class="section"><div class="section-header">詳細:</div>
+これで登録できる関数は、static で、alias が取れるもの。
+
+</div>
+<b>Params:</b><br /><table border='1' cellpadding='8' cellspacing='0' frame='void' rules='rows' class='params'><tr><td class='params_id'>name</td>
+<td>Lua から参照させる関数の名前。
+           <span class='dkeyword'>null</span> を渡すとLuaのグローバルスコープに登録されずスタック頂上に
+           残る。</td></tr>
+</table><br />
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0|1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.push.4" id="sworks.lua.LuaState.push.4"></a>auto <span class='psymbol'>push</span>(alias T, A...)(A <span class='param'>args</span>) if (is(T == class) || is(T == struct));
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Stack up a class or a struct to call its member function from Lua.
+</div>
+<div class='section description'><div class='section-header'>Description:</div>The return value is allocated by Lua's GC.
+    D's GC.addRange and GC.removeRange will be executed.
+
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+クラスの及び構造体の static/非static なメンバ関数を Lua から呼び出し
+    可能な関数として登録する。
+
+</div>
+<div class="section"><div class="section-header">詳細:</div>
+戻り値として返されるメモリ領域は Lua により確保され、Lua の GC によって管理
+    されている。
+    D言語の GC に対する GC.addRange と GC.removeRange は自動で実行される。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.push.5" id="sworks.lua.LuaState.push.5"></a>auto <span class='psymbol'>push</span>(T)() if (is(T == enum));
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Stack up an enum as table.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+enum をインストールする。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.pushNil" id="sworks.lua.LuaState.pushNil"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>pushNil</span>();
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Stack up a nil.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[+1, -0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタックに nil を積む。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[+1, -0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.pop" id="sworks.lua.LuaState.pop"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>pop</span>(int <span class='param'>i</span> = 1);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Remove a value form the top of the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-<span class='param'>i</span>, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタック頂上の値を取り除く。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-<span class='param'>i</span>, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.type" id="sworks.lua.LuaState.type"></a>nothrow @nogc @trusted int <span class='psymbol'>type</span>(int <span class='param'>i</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Get the <span class='psymbol'>type</span> information of position <span class='param'>i</span> on the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタック上の値の型情報
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.isType" id="sworks.lua.LuaState.isType"></a>nothrow @nogc bool <span class='psymbol'>isType</span>(int T)(int <span class='param'>i</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Whether the type of position <span class='param'>i</span> on the stack is T.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.typeName" id="sworks.lua.LuaState.typeName"></a>static pure nothrow @nogc @trusted string <span class='psymbol'>typeName</span>(int <span class='param'>i</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Convert type to string.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+type の戻り値を文字列に変換する。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.getAs" id="sworks.lua.LuaState.getAs"></a>T <span class='psymbol'>getAs</span>(T)(int <span class='param'>i</span>);
+<br />T <span class='psymbol'>getAs</span>(T)(int <span class='param'>i</span>, T <span class='param'>def</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Get a value on the stack as type T.
+</div>
+<div class='section description'><div class='section-header'>Description:</div><span class='psymbol'>getAs</span>!(const(char)[]) returns a string that allocated by Lua.
+    <span class='psymbol'>getAs</span>!string return a string that allocated by D.
+    whichever, the string ends with '\0'
+
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class='section throws'><div class='section=header'>Throws:</div>Exception = when the type is not T.
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタック上の値を型指定して取り出す。
+
+</div>
+<div class="section"><div class="section-header">詳細:</div>
+<span class='psymbol'>getAs</span>!(const(char)[]) で Lua が確保した文字列を返します。
+    その為、Lua に処理が戻った後の値は未定義です。
+    Lua が確保した文字列は、Null終端が保証されています。
+    <span class='psymbol'>getAs</span>!string では idup されます。これも Null終端が保証されます。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">例外:</div>
+Exception = 指定の型ではなかった場合</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.getUserDataAs" id="sworks.lua.LuaState.getUserDataAs"></a>T <span class='psymbol'>getUserDataAs</span>(T)(int <span class='param'>i</span>);
+<br />T <span class='psymbol'>getUserDataAs</span>(T)(int <span class='param'>i</span>, T <span class='param'>def</span>);
+</span></dt>
+<dd>
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.getThread" id="sworks.lua.LuaState.getThread"></a>nothrow @nogc @trusted auto <span class='psymbol'>getThread</span>(int <span class='param'>i</span>);
+</span></dt>
+<dd>
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.getStringAt" id="sworks.lua.LuaState.getStringAt"></a>@trusted string <span class='psymbol'>getStringAt</span>(int <span class='param'>i</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Get a string expression of the value on the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタック上の <span class='param'>i</span> の位置の値を文字列に直して取得する。debugにも。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.getGlobal" id="sworks.lua.LuaState.getGlobal"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>getGlobal</span>(const(char)* <span class='param'>name</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Stack up a value to the stack from Lua's global scope table.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+グローバルスコープのテーブルにアクセスし、値をスタックに積む。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.setGlobal" id="sworks.lua.LuaState.setGlobal"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>setGlobal</span>(const(char)* <span class='param'>name</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Expose the value on the top of the stack to Lua's global scope.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-1, +0]
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-1, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.getFieldAs" id="sworks.lua.LuaState.getFieldAs"></a>T <span class='psymbol'>getFieldAs</span>(T, K)(int <span class='param'>i</span>, K <span class='param'>key</span>);
+<br />T <span class='psymbol'>getFieldAs</span>(T, K)(int <span class='param'>i</span>, K <span class='param'>key</span>, T <span class='param'>def</span>);
+<br /><a class="anchor" name="LuaState.getFieldUserDataAs" id="sworks.lua.LuaState.getFieldUserDataAs"></a>T <span class='psymbol'>getFieldUserDataAs</span>(T, K)(int <span class='param'>i</span>, K <span class='param'>key</span>);
+<br />T <span class='psymbol'>getFieldUserDataAs</span>(T, K)(int <span class='param'>i</span>, K <span class='param'>key</span>, T <span class='param'>def</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Retrieve a value from a table on the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタック上の <span class='param'>i</span> の位置にあるテーブルから値を取り出す。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.setField" id="sworks.lua.LuaState.setField"></a>LuaState <span class='psymbol'>setField</span>(T, K)(int <span class='param'>i</span>, K <span class='param'>key</span>, T <span class='param'>val</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Set a field of a table on the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.setField.2" id="sworks.lua.LuaState.setField.2"></a>LuaState <span class='psymbol'>setField</span>(K)(int <span class='param'>i</span>, K <span class='param'>key</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Set a value on the top of the stack to a field of a table on the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-1, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+value はスタックの頂上に積まれているものとする。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-1, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.getRegistry" id="sworks.lua.LuaState.getRegistry"></a>@nogc LuaState <span class='psymbol'>getRegistry</span>(K)(K <span class='param'>key</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Retrieve a value from the registry.
+    Then stack up the value to the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+レジストリの値をスタックに積む。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.getRegistryAs" id="sworks.lua.LuaState.getRegistryAs"></a>T <span class='psymbol'>getRegistryAs</span>(T, K)(K <span class='param'>key</span>);
+<br />T <span class='psymbol'>getRegistryAs</span>(T, K)(K <span class='param'>key</span>, T <span class='param'>def</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Get a value from the registry.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+レジストリから値を取り出す。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.setRegistry" id="sworks.lua.LuaState.setRegistry"></a>nothrow @nogc LuaState <span class='psymbol'>setRegistry</span>(T, K)(K <span class='param'>key</span>, T <span class='param'>val</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Set <span class='param'>val</span> to the registry.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.setRegistry.2" id="sworks.lua.LuaState.setRegistry.2"></a>nothrow @nogc LuaState <span class='psymbol'>setRegistry</span>(K)(K <span class='param'>key</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Set a value of the top of the stack to the registry.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-1, +0]
+
+
+    value はスタックの頂上に積まれているものとする。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-1, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.getRefRegistry" id="sworks.lua.LuaState.getRefRegistry"></a>nothrow @nogc @trusted LuaRegRef <span class='psymbol'>getRefRegistry</span>();
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Set a value of the top of the stack to the registry.
+    Then return the key that refer the value.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-1, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタック頂上にある値をレジストリへ保存し、値への key を返す。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-1, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.unRefRegistry" id="sworks.lua.LuaState.unRefRegistry"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>unRefRegistry</span>(LuaRegRef <span class='param'>key</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Remove the registry value.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+レジストリから <span class='param'>key</span> に保存されている値を削除する。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.rawGetAs" id="sworks.lua.LuaState.rawGetAs"></a>T <span class='psymbol'>rawGetAs</span>(T)(int <span class='param'>i</span>, int <span class='param'>n</span>);
+</span></dt>
+<dd><div class="section"><div class="section-header">Stack:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.rawGet" id="sworks.lua.LuaState.rawGet"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>rawGet</span>(int <span class='param'>i</span>, int <span class='param'>n</span>);
+</span></dt>
+<dd><div class="section"><div class="section-header">Stack:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタック上の位置 <span class='param'>i</span> にある配列/テーブルの table[<span class='param'>n</span>]を取り出してスタックに積む
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.rawGet.2" id="sworks.lua.LuaState.rawGet.2"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>rawGet</span>(int <span class='param'>i</span>, const(void)* <span class='param'>p</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>The key is a lightuserdata.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+キーは lightuserdata
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.rawGet.3" id="sworks.lua.LuaState.rawGet.3"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>rawGet</span>(int <span class='param'>i</span>);
+</span></dt>
+<dd><div class="section"><div class="section-header">Stack:</div>
+[-1, +1]
+
+</div>
+<div class="section"><div class="section-header">詳細:</div>
+スタック上の位置 <span class='param'>i</span> にある配列/テーブルの table[key] を取り出してスタックに積
+    む。 key はスタックの頂上に積まれているものとする。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-1, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.rawSet" id="sworks.lua.LuaState.rawSet"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>rawSet</span>(int <span class='param'>i</span>, int <span class='param'>n</span>);
+</span></dt>
+<dd><div class="section"><div class="section-header">Stack:</div>
+[-1, +0]
+
+</div>
+<div class="section"><div class="section-header">詳細:</div>
+スタック上の位置 <span class='param'>i</span> にある配列/テーブルの table[<span class='param'>n</span>] に値を設定する。
+    設定される値は、スタックの頂上に積まれているものとする。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-1, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.rawSet.2" id="sworks.lua.LuaState.rawSet.2"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>rawSet</span>(int <span class='param'>i</span>, const(void)* <span class='param'>p</span>);
+</span></dt>
+<dd><div class="section"><div class="section-header">Stack:</div>
+[-1, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+キーは lightuserdata
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-1, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.rawSet.3" id="sworks.lua.LuaState.rawSet.3"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>rawSet</span>(int <span class='param'>i</span>);
+</span></dt>
+<dd><div class="section"><div class="section-header">Stack:</div>
+[-1, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+キー → 値 = 頂上 の順にスタックに積まれているものとする。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-1, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.rawGetRegistryAs" id="sworks.lua.LuaState.rawGetRegistryAs"></a>T <span class='psymbol'>rawGetRegistryAs</span>(T)(LuaRegRef <span class='param'>n</span>);
+<br />T <span class='psymbol'>rawGetRegistryAs</span>(T)(const(void)* <span class='param'>p</span>);
+</span></dt>
+<dd><div class="section"><div class="section-header">Stack:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+レジストリから key = <span class='param'>n</span> の値を取り出し、スタックに積む。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.rawGetRegistry" id="sworks.lua.LuaState.rawGetRegistry"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>rawGetRegistry</span>(LuaRegRef <span class='param'>n</span>);
+</span></dt>
+<dd><div class="section"><div class="section-header">Stack:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+レジストリから key=<span class='param'>n</span> の値を取り出し、スタックに積む
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.rawGetRegistry.2" id="sworks.lua.LuaState.rawGetRegistry.2"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>rawGetRegistry</span>(const(void)* <span class='param'>p</span>);
+</span></dt>
+<dd><div class="section"><div class="section-header">Stack:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+キーは lightuserdata
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.rawGetRegistry.3" id="sworks.lua.LuaState.rawGetRegistry.3"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>rawGetRegistry</span>();
+</span></dt>
+<dd><div class="section"><div class="section-header">Stack:</div>
+[-1, +1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+キーはスタックの頂上にある
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-1, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.rawSetRegistry" id="sworks.lua.LuaState.rawSetRegistry"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>rawSetRegistry</span>(LuaRegRef <span class='param'>n</span>);
+</span></dt>
+<dd><div class="section"><div class="section-header">Stack:</div>
+[-1, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタックの頂上に積まれている値をレジストリの key=<span class='param'>n</span> に設定する。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-1, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.rawSetRegistry.2" id="sworks.lua.LuaState.rawSetRegistry.2"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>rawSetRegistry</span>(const(void)* <span class='param'>p</span>);
+</span></dt>
+<dd><div class="section"><div class="section-header">Stack:</div>
+[-1, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+キーは lightuserdata
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-1, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.rawSetRegistry.3" id="sworks.lua.LuaState.rawSetRegistry.3"></a>nothrow @nogc @trusted LuaState <span class='psymbol'>rawSetRegistry</span>();
+</span></dt>
+<dd><div class="section"><div class="section-header">Stack:</div>
+[-2, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+キーはスタックの頂上にある。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-2, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.newUserData" id="sworks.lua.LuaState.newUserData"></a>nothrow auto <span class='psymbol'>newUserData</span>(T, ARGS...)(ARGS <span class='param'>args</span>) if (is(T == class) || is(T == struct));
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Create a new userdata, then stack up the userdata to the stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +1]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+ユーザーデータを作り、スタックに積む。
+
+</div>
+<div class="section"><div class="section-header">詳細:</div>
+ユーザーデータとして確保された領域は、GC.addRange される。
+    つまり、メンバ変数に D言語側で new した値が格納されていても GC が検出
+    できる。よね。
+    また、_gc metamethod が付加される。LuaのGCによる回収時に デストラクタと
+    GC.removeRange が呼ばれる。
+    metamethod table は fullyQualifiedName でレジストリに登録される。
+
+</div>
+<div class="section"><div class="section-header">注意:</div>
+この値をpopしてしまうとスコープアウトする為、注意。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +1]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.newUserData.2" id="sworks.lua.LuaState.newUserData.2"></a>nothrow @nogc void* <span class='psymbol'>newUserData</span>(T : size_t)(T <span class='param'>size</span>);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Create a raw userdata.
+</div>
+<div class="section"><div class="section-header">概要:</div>
+GC.addRange されない生ポ</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.getFunc" id="sworks.lua.LuaState.getFunc"></a>auto <span class='psymbol'>getFunc</span>(const(char)* name = null, R...)();
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Retrieve a function from Lua's global scope.
+    Then set the function to the registry.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+Lua のグローバルスコープから関数名 name の関数を取り出し、
+    Lua のレジストリに登録しする。戻り値のファンクタを呼び出すことで関数を実行
+    できる。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaState.dumpStack" id="sworks.lua.LuaState.dumpStack"></a>@trusted string <span class='psymbol'>dumpStack</span>();
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>Get a string expression of the whole stack.
+</div>
+<div class="section"><div class="section-header">Stack:</div>
+[-0, +0]
+
+</div>
+<div class="section"><div class="section-header">概要:</div>
+スタック上の全てを文字列にして返す。debug に。
+
+</div>
+<div class="section"><div class="section-header">スタック:</div>
+[-0, +0]</div>
+
+</dd>
+</dl>
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaException" id="sworks.lua.LuaException"></a>class <span class='psymbol'>LuaException</span>: <u>object.Exception</u>;
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>An exception class containing the error information of Lua.
+</div>
+<div class="section"><div class="section-header">概要:</div>
+Lua のエラー情報を持つ例外</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaTable" id="sworks.lua.LuaTable"></a>struct <span class='psymbol'>LuaTable</span>(Specs...);
+</span></dt>
+<dd><div class='section summary'><div class='section-header'>Summary:</div>An expression of Lua's table.
+</div>
+<div class="section"><div class="section-header">概要:</div>
+関数の引数などとして、Lua のテーブルを扱う。中身は std.typecons.Tuple</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaTableLoose" id="sworks.lua.LuaTableLoose"></a>struct <span class='psymbol'>LuaTableLoose</span>(Specs...);
+</span></dt>
+<dd><div class="section"><div class="section-header">概要:</div>
+Lua から呼ばれるD言語の関数の引数として利用すると、
+Lua がスタックに積んだ実際のテーブル上にメンバがなくても例外を投げない。</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="Loosely" id="sworks.lua.Loosely"></a>alias <span class='psymbol'>Loosely</span> = std.typecons.Typedef(T, T init = T.init, string cookie = null);
+</span></dt>
+<dd><div class="section"><div class="section-header">概要:</div>
+LuaTable のメンバとして使うと、デフォルト値を設定できる。
+中身は std.typecons.Typedef.</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="OnStack" id="sworks.lua.OnStack"></a>alias <span class='psymbol'>OnStack</span> = std.typecons.Typedef!(int, 0, null).Typedef;
+</span></dt>
+<dd><div class="section"><div class="section-header">概要:</div>
+LuaState.install により登録され、Lua から呼び出される関数の戻り値として使うと、
+Lua への戻り値は既にスタック上に頂上から num 個積まれていることを示す。</div>
+
+</dd>
+<dt><span class='decl'><a class="anchor" name="LuaRegRef" id="sworks.lua.LuaRegRef"></a>alias <span class='psymbol'>LuaRegRef</span> = std.typecons.Typedef!(int, 0, null).Typedef;
+</span></dt>
+<dd><div class="section"><div class="section-header">概要:</div>
+レジストリへの参照を特に格納する。</div>
+
+</dd>
+</dl>
+
+  </dd>
+
+            </dl><!-- end of dl id="modules" -->
+            <div id="main-footer">
+                2016 S-WORKS. Some rights reserved.
+            </div>
+        </div><!-- end of div id="main-pain" -->
+    </body>
+</html>
